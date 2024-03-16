@@ -19,10 +19,7 @@ The Student Management System (SMS) is a comprehensive web application designed 
 5. **Dashboard and Reporting:**
     - A comprehensive dashboard provides administrators and moderators with an overview of key metrics, including student enrollment, revenue generated, and system activity. Detailed reports and analytics help stakeholders make informed decisions and monitor performance.
 
-6. **Messaging and Notifications:**
-    - Built-in messaging and notification features enable seamless communication between administrators, moderators, and students. Users receive alerts for important updates, deadlines, and announcements, ensuring timely communication and engagement.
-
-7. **Responsive Design:**
+6. **Responsive Design:**
     - The SMS boasts a responsive design that adapts to various devices and screen sizes, ensuring accessibility and usability across desktops, laptops, tablets, and smartphones. This enhances user experience and promotes accessibility for all stakeholders.
 
 ## Sum of All Payments
