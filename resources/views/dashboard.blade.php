@@ -1,18 +1,29 @@
-<x-app-layout>
-    <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __('Dashboard') }}
-        </h2>
-    </x-slot>
-
-    <div class="py-12">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                <div class="p-6 text-gray-900">
-                    {{ __("You're logged in!") }}
+@extends('layouts.dashboard.dashboard')
+@section('content') 
+       <!-- Page Sidebar Ends-->
+       <div class="page-body">
+        <div class="container">
+            <div class="page-title">
+                <div class="row">
+                    <div class="col-lg-6">
+                        <ol class="breadcrumb">
+                            <li class="breadcrumb-item"><a href="{{ url('/') }}">
+                                    <svg class="stroke-icon">
+                                        <use
+                                            href="{{ asset('dashboard_assests') }}/svg/icon-sprite.svg#stroke-home">
+                                        </use>
+                                    </svg></a></li>
+                            <li class="breadcrumb-item">Dashboard</li>
+                            <li class="breadcrumb-item active">Home</li>
+                        </ol>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-
-</x-app-layout>
+    <div class="container-fluid">
+        <!-- Container-fluid starts-->
+        
+        <!-- Container-fluid Ends-->
+    </div>
+@endsection

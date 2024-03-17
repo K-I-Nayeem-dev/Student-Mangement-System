@@ -57,7 +57,7 @@ new class extends Component
                         </x-dropdown-link>
 
                         <!-- Authentication -->
-                        <button wire:click="logout" class="w-full text-start">
+                        <button wire:click="logout" class="btn btn-pill btn-outline-primary btn-sm">
                             <x-dropdown-link>
                                 {{ __('Log Out') }}
                             </x-dropdown-link>
@@ -99,11 +99,11 @@ new class extends Component
                 </x-responsive-nav-link>
 
                 <!-- Authentication -->
-                <button wire:click="logout" class="w-full text-start">
+                {{-- <button wire:click="logout" class="w-full text-start">
                     <x-responsive-nav-link>
                         {{ __('Log Out') }}
                     </x-responsive-nav-link>
-                </button>
+                </button> --}}
             </div>
         </div>
     </div>

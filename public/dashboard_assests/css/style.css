@@ -43638,7 +43638,7 @@ table.table-bordered thead tr th p {
           align-items: center;
   -webkit-box-pack: end;
       -ms-flex-pack: end;
-          justify-content: flex-end;
+          /* justify-content: flex-end; */
 }
 .page-wrapper .page-body-wrapper .page-title .breadcrumb li {
   font-size: 13px;

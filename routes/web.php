@@ -1,6 +1,8 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\HomeController;
+use App\Http\Controllers\ProfileController;
 
 /*
 |--------------------------------------------------------------------------
@@ -13,14 +15,24 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::view('/', 'welcome');
+Route::group(['middleware' => 'web'], function(){
 
-Route::view('dashboard', 'dashboard')
-    ->middleware(['auth', 'verified'])
-    ->name('dashboard');
+    // Dashboard Back-end Routes
+    Route::group(['controller' => HomeController::class], function () {
+        Route::view('/', 'welcome');
+        Route::view('dashboard', 'dashboard')->middleware(['auth', 'verified'])->name('dashboard');
+    });
+    
+    // Profile Back-end Routes
+    Route::group(['controller' => ProfileController::class], function(){
+        Route::get('profile', 'index')->middleware(['auth'])->name('profile');
+    });
+    
+});
 
-Route::view('profile', 'profile')
-    ->middleware(['auth'])
-    ->name('profile');
 
-require __DIR__.'/auth.php';
+/**
+ * Require the routes defined in auth.php. This separates authentication 
+ * routes into their own file.
+ */
+require __DIR__ . '/auth.php';
