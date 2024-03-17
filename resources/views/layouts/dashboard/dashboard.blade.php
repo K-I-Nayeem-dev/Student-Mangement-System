@@ -151,7 +151,7 @@ new class extends Component
 
                                 {{-- logout components --}}
                                     <li>
-                                        <livewire:logout />
+                                        @livewire('logout')
                                     </li> 
                                 {{-- logout components --}}
 

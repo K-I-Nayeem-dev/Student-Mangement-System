@@ -1,25 +1,23 @@
 <?php
 
-use App\Livewire\Actions\Logout;
 use Livewire\Volt\Component;
 
-new class extends Component
-{
-    /**
-     * Log the current user out of the application.
-     */
-    public function logout(Logout $logout): void
-    {
-        $logout();
+new class extends Component {
+    public $count = 1;
 
-        $this->redirect('/', navigate: true);
+    public function increment(){
+        $this->count++;
     }
+
+    public function decrement(){
+        $this->count--;
+    }
+
+
 }; ?>
 
 <div>
-    <button wire:click="logout" class="btn btn-pill btn-outline-primary btn-sm">
-        <x-responsive-nav-link>
-            {{ __('Log Out') }}
-        </x-responsive-nav-link>
-    </button>
+    <p>{{ $count }}</p>
+    <button wire:cilck='increment'>+</button>
+    <button wire:cilck='decrement'>-</button>
 </div>
