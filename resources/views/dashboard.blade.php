@@ -7,7 +7,7 @@
                 <div class="row">
                     <div class="col-lg-6">
                         <ol class="breadcrumb">
-                            <li class="breadcrumb-item"><a href="{{ url('/') }}">
+                            <li class="breadcrumb-item"><a href="{{ url('/dashboard') }}">
                                     <svg class="stroke-icon">
                                         <use
                                             href="{{ asset('dashboard_assests') }}/svg/icon-sprite.svg#stroke-home">

@@ -1,23 +1,6 @@
-@php
-use App\Livewire\Actions\Logout;
-use Livewire\Volt\Component;
-
-new class extends Component
-{
-    /**
-     * Log the current user out of the application.
-     */
-    public function logout(Logout $logout): void
-    {
-        $logout();
-
-        $this->redirect('/', navigate: true);
-    }
-};
-@endphp
-
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -49,14 +32,17 @@ new class extends Component
     <link rel="stylesheet" type="text/css" href="{{ asset('dashboard_assests') }}/css/vendors/slick-theme.css">
     <link rel="stylesheet" type="text/css" href="{{ asset('dashboard_assests') }}/css/vendors/scrollbar.css">
     <link rel="stylesheet" type="text/css" href="{{ asset('dashboard_assests') }}/css/vendors/animate.css">
-    <link rel="stylesheet" type="text/css" href="{{ asset('dashboard_assests') }}/css/vendors/echart.css">
     <link rel="stylesheet" type="text/css" href="{{ asset('dashboard_assests') }}/css/vendors/date-picker.css">
 
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.css" integrity="sha512-5A8nwdMOWrSz20fDsjczgUidUBR8liPYU+WymTZP1lmY9G6Oc7HlZv156XqnsgNUzTyMefFTcsFH/tnJE/+xBg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.css"
+        integrity="sha512-5A8nwdMOWrSz20fDsjczgUidUBR8liPYU+WymTZP1lmY9G6Oc7HlZv156XqnsgNUzTyMefFTcsFH/tnJE/+xBg=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
 
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" integrity="sha512-SfTiTlX6kk+qitfevl/7LibUOeJWlt9rbyDn92a1DqWOw9vWG2MFoays0sgObmWazO5BQPiFucnnEAjpAB+/Sw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-    
-    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"
+        integrity="sha512-SfTiTlX6kk+qitfevl/7LibUOeJWlt9rbyDn92a1DqWOw9vWG2MFoays0sgObmWazO5BQPiFucnnEAjpAB+/Sw=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+
     <!-- Plugins css Ends-->
     <!-- Bootstrap css-->
     <link rel="stylesheet" type="text/css" href="{{ asset('dashboard_assests') }}/css/vendors/bootstrap.css">
@@ -65,6 +51,7 @@ new class extends Component
     <link id="color" rel="stylesheet" href="{{ asset('dashboard_assests') }}/css/color-1.css" media="screen">
     <!-- Responsive css-->
     <link rel="stylesheet" type="text/css" href="{{ asset('dashboard_assests') }}/css/responsive.css">
+    @livewireStyles
 </head>
 
 <body>
@@ -98,7 +85,7 @@ new class extends Component
                     </div>
                 </form>
                 <div class="header-logo-wrapper col-auto p-0">
-                    <div class="logo-wrapper"> <a href="index.html"><img class="img-fluid for-light"
+                    <div class="logo-wrapper"> <a href="{{ url('/dashboard') }}"><img class="img-fluid for-light"
                                 src="{{ asset('dashboard_assests') }}/images/logo/logo_dark.png"
                                 alt="logo-light"><img class="img-fluid for-dark"
                                 src="{{ asset('dashboard_assests') }}/images/logo/logo.png" alt="logo-dark"></a>
@@ -144,15 +131,17 @@ new class extends Component
                                 </div>
                             </div>
                             <ul class="profile-dropdown onhover-show-div">
-                                <li><a href="{{ route('profile') }}"><i data-feather="user"></i><span>My Profile</span></a>
+                                <li><a href="{{ route('profile') }}"><i data-feather="user"></i><span>My
+                                            Profile</span></a>
                                 </li>
                                 <li><a href="letter-box.html"><i data-feather="mail"></i><span>Inbox</span></a></li>
-                                <li> <a href="edit-profile.html"> <i data-feather="settings"></i><span>Settings</span></a></li>
+                                <li> <a href="{{ route('profile.setting') }}"> <i
+                                            data-feather="settings"></i><span>Settings</span></a></li>
 
                                 {{-- logout components --}}
-                                    <li>
-                                        @livewire('logout')
-                                    </li> 
+                                <li>
+                                    <livewire:logout.logout/>
+                                </li>
                                 {{-- logout components --}}
 
                             </ul>
@@ -175,20 +164,22 @@ new class extends Component
         <div class="page-body-wrapper">
             <!-- Page Sidebar Start-->
             <div class="sidebar-wrapper" data-layout="stroke-svg">
-                <div class="logo-wrapper"><a href="index.html"><img width="120" height="40" class="img-fluid"
+                <div class="logo-wrapper"><a href="{{ url('/dashboard') }}"><img class="ms-5" width="120"
+                            height="50" class="img-fluid"
                             src="{{ asset('dashboard_assests') }}/images/logo/logo1.jpg" alt=""></a>
                     <div class="back-btn"><i class="fa fa-angle-left"> </i></div>
                     <div class="toggle-sidebar"><i class="status_toggle middle sidebar-toggle" data-feather="grid">
                         </i></div>
                 </div>
-                <div class="logo-icon-wrapper"><a href="index.html"><img width="50" height="50" class="img-fluid"
-                            src="{{ asset('dashboard_assests') }}/images/logo/logo1.jpg" alt=""></a>
+                <div class="logo-icon-wrapper"><a href="{{ url('/dashboard') }}"><img width="50" height="50"
+                            class="img-fluid" src="{{ asset('dashboard_assests') }}/images/logo/logo1.jpg"
+                            alt=""></a>
                 </div>
                 <nav class="sidebar-main">
                     <div class="left-arrow" id="left-arrow"><i data-feather="arrow-left"></i></div>
                     <div id="sidebar-menu">
                         <ul class="sidebar-links" id="simple-bar">
-                            <li class="back-btn"><a href="index.html"><img class="img-fluid"
+                            <li class="back-btn"><a href="{{ url('/dashboard') }}"><img class="img-fluid"
                                         src="{{ asset('dashboard_assests') }}/images/logo/logo-icon.png"
                                         alt=""></a>
                                 <div class="mobile-back text-end"> <span>Back </span><i class="fa fa-angle-right ps-2"
@@ -213,59 +204,32 @@ new class extends Component
                                     <svg class="fill-icon">
                                         <use href="{{ asset('dashboard_assests') }}/svg/icon-sprite.svg#fill-home">
                                         </use>
-                                    </svg><span class="lan-3">Dashboard </span></a>
+                                    </svg><span>Users</span></a>
                                 <ul class="sidebar-submenu">
-                                    <li><a href="index.html">Default</a></li>
-                                    <li><a href="dashboard-02.html">Ecommerce</a></li>
-                                    <li><a href="dashboard-03.html">Project</a></li>
-                                </ul>
-                            </li>
-                            <li class="sidebar-list"><i class="fa fa-thumb-tack"></i><a
-                                    class="sidebar-link sidebar-title" href="#">
-                                    <svg class="stroke-icon">
-                                        <use
-                                            href="{{ asset('dashboard_assests') }}/svg/icon-sprite.svg#stroke-widget">
-                                        </use>
-                                    </svg>
-                                    <svg class="fill-icon">
-                                        <use href="{{ asset('dashboard_assests') }}/svg/icon-sprite.svg#fill-widget">
-                                        </use>
-                                    </svg><span class="lan-6">Widgets</span></a>
-                                <ul class="sidebar-submenu">
-                                    <li><a href="general-widget.html">General</a></li>
-                                    <li><a href="chart-widget.html">Chart</a></li>
-                                </ul>
-                            </li>
-                            <li class="sidebar-list"><i class="fa fa-thumb-tack"></i><a
-                                    class="sidebar-link sidebar-title" href="#">
-                                    <svg class="stroke-icon">
-                                        <use
-                                            href="{{ asset('dashboard_assests') }}/svg/icon-sprite.svg#stroke-layout">
-                                        </use>
-                                    </svg>
-                                    <svg class="fill-icon">
-                                        <use href="{{ asset('dashboard_assests') }}/svg/icon-sprite.svg#fill-layout">
-                                        </use>
-                                    </svg><span class="lan-7">Page layout</span></a>
-                                <ul class="sidebar-submenu">
-                                    <li><a href="box-layout.html">Boxed</a></li>
-                                    <li><a href="layout-rtl.html">RTL</a></li>
-                                    <li><a href="layout-dark.html">Dark Layout</a></li>
-                                    <li> <a href="hide-on-scroll.html">Hide Nav Scroll</a></li>
+                                    @if (Auth::user()->role == 'admin')
+                                        <li><a href="{{ route('user.index') }}"><i class="fa fa-user me-1"
+                                                    aria-hidden="true"></i>All User</a></li>
+                                        <li><a href="{{ route('user.create') }}"><i class="fa fa-user-plus"
+                                                    aria-hidden="true"></i>
+                                                Add User</a></li>
+                                    @else
+                                        <li><a href="{{ route('profile') }}"><i class="fa fa-user me-1"
+                                                    aria-hidden="true"></i>Profile</a></li>
+                                    @endif
                                 </ul>
                             </li>
                             <div class="right-arrow" id="right-arrow"><i data-feather="arrow-right"></i></div>
                     </div>
                 </nav>
             </div>
-            
+
             {{-- Container start --}}
-                @yield('content')
+            @yield('content')
             {{-- Container End --}}
 
             <!-- footer start-->
             <footer class="footer">
-                <div class="container-fluid">
+                <div class="container">
                     <div class="row">
                         <div class="col-md-12 footer-copyright text-center">
                             <p class="mb-0">Copyright 2024 © Riho theme by pixelstrap </p>
@@ -296,13 +260,6 @@ new class extends Component
     <script src="{{ asset('dashboard_assests') }}/js/chart/apex-chart/apex-chart.js"></script>
     <script src="{{ asset('dashboard_assests') }}/js/chart/apex-chart/stock-prices.js"></script>
     <script src="{{ asset('dashboard_assests') }}/js/chart/apex-chart/moment.min.js"></script>
-    <script src="{{ asset('dashboard_assests') }}/js/chart/echart/esl.js"></script>
-    <script src="{{ asset('dashboard_assests') }}/js/chart/echart/config.js"></script>
-    <script src="{{ asset('dashboard_assests') }}/js/chart/echart/pie-chart/facePrint.js"></script>
-    <script src="{{ asset('dashboard_assests') }}/js/chart/echart/pie-chart/testHelper.js"></script>
-    <script src="{{ asset('dashboard_assests') }}/js/chart/echart/pie-chart/custom-transition-texture.js"></script>
-    <script src="{{ asset('dashboard_assests') }}/js/chart/echart/data/symbols.js"></script>
-    <!-- calendar js-->
     <script src="{{ asset('dashboard_assests') }}/js/datepicker/date-picker/datepicker.js"></script>
     <script src="{{ asset('dashboard_assests') }}/js/datepicker/date-picker/datepicker.en.js"></script>
     <script src="{{ asset('dashboard_assests') }}/js/datepicker/date-picker/datepicker.custom.js"></script>
@@ -318,15 +275,16 @@ new class extends Component
         // alert(dark.innerHTML)
         dark.addEventListener('click', () => {
             if (dark.innerHTML == 'Light Mode') {
-                    localStorage.setItem("mode", "Dark Mode");
-                    dark.innerHTML = localStorage.getItem("mode");
+                localStorage.setItem("mode", "Dark Mode");
+                dark.innerHTML = localStorage.getItem("mode");
 
             } else {
-                    localStorage.setItem("mode", "Light Mode")
-                    dark.innerHTML = localStorage.getItem("mode");
+                localStorage.setItem("mode", "Light Mode")
+                dark.innerHTML = localStorage.getItem("mode");
             }
         })
-    </script>
+        </script>
+        @livewireScripts
 </body>
 
 </html>

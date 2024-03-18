@@ -3,6 +3,9 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\SettingController;
+use App\Http\Controllers\UserController;
+use Illuminate\Support\Facades\Auth;
 
 /*
 |--------------------------------------------------------------------------
@@ -15,7 +18,11 @@ use App\Http\Controllers\ProfileController;
 |
 */
 
+// disable Register Route
+Auth::routes(['register' => false]);
+
 Route::group(['middleware' => 'web'], function(){
+
 
     // Dashboard Back-end Routes
     Route::group(['controller' => HomeController::class], function () {
@@ -27,9 +34,18 @@ Route::group(['middleware' => 'web'], function(){
     Route::group(['controller' => ProfileController::class], function(){
         Route::get('profile', 'index')->middleware(['auth'])->name('profile');
     });
+
+    // Setting Controller
+    Route::group(['controller' => SettingController::class], function(){
+        Route::get('profile/setting', 'index')->name('profile.setting');
+    });
+
+    // Resource Controller
+    Route::resources([
+        'user' => UserController::class,
+    ]);
     
 });
-
 
 /**
  * Require the routes defined in auth.php. This separates authentication 
