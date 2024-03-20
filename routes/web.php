@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\RoleController;
 use App\Http\Controllers\SettingController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Auth;
@@ -19,15 +20,15 @@ use Illuminate\Support\Facades\Auth;
 */
 
 // disable Register Route
-Auth::routes(['register' => false]);
+// Auth::routes(['register' => false]);
 
 Route::group(['middleware' => 'web'], function(){
 
 
     // Dashboard Back-end Routes
     Route::group(['controller' => HomeController::class], function () {
-        Route::view('/', 'welcome');
-        Route::view('dashboard', 'dashboard')->middleware(['auth', 'verified'])->name('dashboard');
+        Route::get('/', 'index');
+        Route::get('dashboard', 'dashboard')->middleware(['auth', 'verified'])->name('dashboard');
     });
     
     // Profile Back-end Routes
@@ -43,6 +44,7 @@ Route::group(['middleware' => 'web'], function(){
     // Resource Controller
     Route::resources([
         'user' => UserController::class,
+        'role' => RoleController::class,
     ]);
     
 });

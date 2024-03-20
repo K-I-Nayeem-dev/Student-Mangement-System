@@ -16,8 +16,8 @@
     <title>Student Management System</title>
     <!-- Google font-->
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
-    <link href="../../css2?family=Montserrat:wght@200;300;400;500;600;700;800&amp;display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
     <link rel="stylesheet" type="text/css" href="{{ asset('dashboard_assests') }}/css/font-awesome.css">
     <!-- ico-font-->
     <link rel="stylesheet" type="text/css" href="{{ asset('dashboard_assests') }}/css/vendors/icofont.css">
@@ -103,12 +103,12 @@
                     @if (Auth::user()->role == 'admin')
                         <div class="welcome-content d-xl-block d-none"><span class="text-truncate col-12">Here’s
                                 what’s happening with your Student Management Area. </span></div>
-                    @elseif(Auth::user()->role == 'admin')
+                    @elseif(Auth::user()->role == 'moderator')
                         <div class="welcome-content d-xl-block d-none"><span class="text-truncate col-12">Here’s
                                 what’s happening with your Student Management Area.</span></div>
                     @else
                         <div class="welcome-content d-xl-block d-none"><span class="text-truncate col-12">Here’s
-                                what’s happening with your Student Management Area.</span></div>
+                                what’s happening with your Student Management Area. </span></div>
                     @endif
                 </div>
                 <div class="nav-right col-xxl-7 col-xl-6 col-md-7 col-8 pull-right right-header p-0 ms-auto">
@@ -127,7 +127,12 @@
                                     <div class="d-flex align-items-center gap-2">
                                         <span>{{ Auth::user()->name }}</span><i class="middle fa fa-angle-down"> </i>
                                     </div>
-                                    <p class="mb-0 font-roboto">{{ auth()->user()->role }}</p>
+                                    @if (Auth::user()->role == 'admin')
+                                        <p class="mb-0 font-roboto">Admin</p>
+                                        
+                                    @else
+                                        <p class="mb-0 font-roboto">{{ Auth::user()->relToRole->type }}</p>
+                                    @endif
                                 </div>
                             </div>
                             <ul class="profile-dropdown onhover-show-div">
@@ -195,6 +200,8 @@
                                     <h6 class="lan-1">General</h6>
                                 </div>
                             </li>
+
+                            {{-- Users Add And View --}}
                             <li class="sidebar-list"><i class="fa fa-thumb-tack"> </i><a
                                     class="sidebar-link sidebar-title" href="#">
                                     <svg class="stroke-icon">
@@ -218,6 +225,69 @@
                                     @endif
                                 </ul>
                             </li>
+                            @if (Auth::user()->role == 'admin')
+
+                                {{-- Role & permission --}}
+                                <li class="sidebar-list"><i class="fa fa-thumb-tack"> </i><a
+                                        class="sidebar-link sidebar-title" href="#">
+                                        <i style="color: white" class="fa fa-cogs" aria-hidden="true"></i>
+                                        <svg class="fill-icon">
+                                            <use href="{{ asset('dashboard_assests') }}/svg/icon-sprite.svg#fill-home">
+                                            </use>
+                                        </svg><span>Role & permission</span></a>
+                                    <ul class="sidebar-submenu">
+                                            <li><a href="{{ route('role.index') }}"><i class="fa fa-gear me-1"
+                                                        aria-hidden="true"></i>Role</a></li>
+                                            <li><a href="{{ route('user.index') }}"><i class="fa fa-gear me-1" aria-hidden="true"></i>Permission</a></li>
+                                    </ul>
+                                </li>
+
+                                {{-- Courses --}}
+                                <li class="sidebar-list"><i class="fa fa-thumb-tack"> </i><a
+                                        class="sidebar-link sidebar-title" href="#">
+                                        <i style="color: white" class="fa fa-book" aria-hidden="true"></i>
+                                        <svg class="fill-icon">
+                                            <use href="{{ asset('dashboard_assests') }}/svg/icon-sprite.svg#fill-home">
+                                            </use>
+                                        </svg><span>Courses</span></a>
+                                    <ul class="sidebar-submenu">
+                                            <li><a href="{{ route('role.index') }}"><i class="fa fa-plus-square me-1"
+                                                        aria-hidden="true"></i>Add Course</a></li>
+                                            <li><a href="{{ route('user.index') }}"><i class="fa fa-address-book-o me-1" aria-hidden="true"></i>View Course</a></li>
+                                    </ul>
+                                </li>
+
+                                {{-- Purchase Course --}}
+                                <li class="sidebar-list"><i class="fa fa-thumb-tack"> </i><a
+                                        class="sidebar-link sidebar-title" href="#">
+                                        <i style="color: white" class="fa fa-cart-plus" aria-hidden="true"></i>
+                                        <svg class="fill-icon">
+                                            <use href="{{ asset('dashboard_assests') }}/svg/icon-sprite.svg#fill-home">
+                                            </use>
+                                        </svg><span>Purchase Course</span></a>
+                                    <ul class="sidebar-submenu" style="font-size: 12px">
+                                            <li><a href="{{ route('role.index') }}"><i class="fa fa-users me-1"
+                                                        aria-hidden="true"></i>Reffer To Studnets</a></li>
+                                            <li><a href="{{ route('user.index') }}"><i class="fa fa-user-circle me-1" aria-hidden="true"></i>Self Purchase Students</a></li>
+                                    </ul>
+                                </li>
+
+                                {{-- Coupon & Discount --}}
+                                <li class="sidebar-list"><i class="fa fa-thumb-tack"> </i><a
+                                        class="sidebar-link sidebar-title" href="#">
+                                        <i style="color: white" class="fa fa-percent" aria-hidden="true"></i>
+                                        <svg class="fill-icon">
+                                            <use href="{{ asset('dashboard_assests') }}/svg/icon-sprite.svg#fill-home">
+                                            </use>
+                                        </svg><span>Coupon</span></a>
+                                    <ul class="sidebar-submenu">
+                                            <li><a href="{{ route('role.index') }}"><i class="fa fa-file-text me-1"
+                                                        aria-hidden="true"></i>Coupon Type</a></li>
+                                            <li><a href="{{ route('user.index') }}"><i class="fa fa-bookmark me-1" aria-hidden="true"></i>Coupons</a></li>
+                                    </ul>
+                                </li>
+
+                            @endif
                             <div class="right-arrow" id="right-arrow"><i data-feather="arrow-right"></i></div>
                     </div>
                 </nav>

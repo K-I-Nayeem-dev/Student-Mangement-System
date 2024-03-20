@@ -5,6 +5,7 @@ use App\Providers\RouteServiceProvider;
 use Illuminate\Support\Facades\Session;
 use Livewire\Attributes\Layout;
 use Livewire\Volt\Component;
+use App\Models\User;
 
 new #[Layout('layouts.guest')] class extends Component
 {
@@ -22,6 +23,12 @@ new #[Layout('layouts.guest')] class extends Component
         Session::regenerate();
 
         $this->redirectIntended(default: RouteServiceProvider::HOME, navigate: true);
+
+        if(auth()->user()->role != 'admin'){
+            User::find(auth()->id())->update([
+                'status' => 1,
+        ]);
+        }
     }
 }; ?>
 
