@@ -186,7 +186,7 @@ new class extends Component {
                                             <td class="text-center">
                                                 <button type="submit" wire:click="userDelete({{ $user->id }})"
                                                     class="btn btn-sm btn-pill btn-danger">
-                                                    <i style="font-size: 16px" class="fa fa-trash"
+                                                    <i style="font-size: 12px" class="fa fa-trash"
                                                         aria-hidden="true"></i>
                                                 </button>
                                             </td>

@@ -1,5 +1,8 @@
 <?php
 
+use App\Http\Controllers\CouponController;
+use App\Http\Controllers\CourseController;
+use App\Http\Controllers\CoursePurchaseController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ProfileController;
@@ -45,6 +48,9 @@ Route::group(['middleware' => 'web'], function(){
     Route::resources([
         'user' => UserController::class,
         'role' => RoleController::class,
+        'course' => CourseController::class,
+        'purchase' => CoursePurchaseController::class,
+        'coupon' => CouponController::class,
     ]);
     
 });

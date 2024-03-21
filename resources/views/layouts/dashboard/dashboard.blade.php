@@ -20,7 +20,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
     <link rel="stylesheet" type="text/css" href="{{ asset('dashboard_assests') }}/css/font-awesome.css">
     <!-- ico-font-->
-    <link rel="stylesheet" type="text/css" href="{{ asset('dashboard_assests') }}/css/vendors/icofont.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@icon/icofont@1.0.1-alpha.1/icofont.min.css">
     <!-- Themify icon-->
     <link rel="stylesheet" type="text/css" href="{{ asset('dashboard_assests') }}/css/vendors/themify.css">
     <!-- Flag icon-->
@@ -251,9 +251,9 @@
                                             </use>
                                         </svg><span>Courses</span></a>
                                     <ul class="sidebar-submenu">
-                                            <li><a href="{{ route('role.index') }}"><i class="fa fa-plus-square me-1"
+                                            <li><a href="{{ route('course.index') }}"><i class="fa fa-plus-square me-1"
                                                         aria-hidden="true"></i>Add Course</a></li>
-                                            <li><a href="{{ route('user.index') }}"><i class="fa fa-address-book-o me-1" aria-hidden="true"></i>View Course</a></li>
+                                            <li><a href="{{ route('course.index') }}"><i class="fa fa-address-book-o me-1" aria-hidden="true"></i>View Course</a></li>
                                     </ul>
                                 </li>
 
@@ -266,9 +266,9 @@
                                             </use>
                                         </svg><span>Purchase Course</span></a>
                                     <ul class="sidebar-submenu" style="font-size: 12px">
-                                            <li><a href="{{ route('role.index') }}"><i class="fa fa-users me-1"
+                                            <li><a href="{{ route('purchase.index') }}"><i class="fa fa-users me-1"
                                                         aria-hidden="true"></i>Reffer To Studnets</a></li>
-                                            <li><a href="{{ route('user.index') }}"><i class="fa fa-user-circle me-1" aria-hidden="true"></i>Self Purchase Students</a></li>
+                                            <li><a href="{{ route('purchase.index') }}"><i class="fa fa-user-circle me-1" aria-hidden="true"></i>Self Purchase Students</a></li>
                                     </ul>
                                 </li>
 
@@ -281,9 +281,9 @@
                                             </use>
                                         </svg><span>Coupon</span></a>
                                     <ul class="sidebar-submenu">
-                                            <li><a href="{{ route('role.index') }}"><i class="fa fa-file-text me-1"
+                                            <li><a href="{{ route('coupon.index') }}"><i class="fa fa-file-text me-1"
                                                         aria-hidden="true"></i>Coupon Type</a></li>
-                                            <li><a href="{{ route('user.index') }}"><i class="fa fa-bookmark me-1" aria-hidden="true"></i>Coupons</a></li>
+                                            <li><a href="{{ route('coupon.index') }}"><i class="fa fa-bookmark me-1" aria-hidden="true"></i>Coupons</a></li>
                                     </ul>
                                 </li>
 
@@ -354,6 +354,7 @@
             }
         })
         </script>
+         @stack('scripts')
         @livewireScripts
 </body>
 

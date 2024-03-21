@@ -39,6 +39,7 @@ class User extends Authenticatable
         'password' => 'hashed',
     ];
 
+    // Relation To Role Table
     public function relToRole(){
         return $this->hasOne(Role::class, 'id', 'role');
     }
