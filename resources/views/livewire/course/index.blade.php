@@ -8,7 +8,7 @@ use Livewire\Attributes\Isolate;
 use Intervention\Image\ImageManager;
 use Intervention\Image\Drivers\Gd\Driver;
 use App\Models\Course;
-
+use App\Models\User;
 
 new class extends Component {
     use WithFileUploads;
@@ -17,61 +17,66 @@ new class extends Component {
     #Validate[]
     public $title, $name, $regular_price, $discount_price, $image, $status;
 
-    public function with(): array{
+    public function with(): array
+    {
         return [
-            'courses' => Course::all(),
+            'courses' => Course::latest()->paginate(6),
         ];
     }
 
-    // public function rules()
-    // {
-    //     return [
-    //         'title' => 'required|min:4',
-    //         'name' => 'required|min:4',
-    //         'regular_price' => 'required',
-    //         'discount_price' => 'required',
-    //         'image' => 'required|file|image|mimes:jpeg,png,jpg,gif|max:1024',
-    //     ];
-    // }
+    public function rules()
+    {
+        return [
+            'title' => 'required|min:4',
+            'name' => 'required|min:4',
+            'regular_price' => 'required',
+            'discount_price' => 'required',
+            'image' => 'required|file|image|mimes:jpeg,png,jpg,gif|max:1024',
+            'status' => 'required',
+        ];
+    }
 
-    // public function addCourse()
-    // {
-    //     $this->validate();
+    public function addCourse()
+    {
+        $this->validate();
 
-    //     $data = [
-    //         'title' => $this->title,
-    //         'name' => $this->name,
-    //         'regular_price' => $this->regular_price,
-    //         'discount_price' => $this->discount_price,
-    //     ];
+        $data = [
+            'title' => $this->title,
+            'name' => $this->name,
+            'regular_price' => $this->regular_price,
+            'discount_price' => $this->discount_price,
+            'status' => $this->status,
+        ];
 
-    //     $Image = new ImageManager(new Driver());
-    //     $new_name = Str::random(5).time().".". $this->image->getClientOriginalExtension();
-    //     $image = $Image->read($this->image)->resize(1280,720);
-    //     $image->save(('uploads/courses/'.$new_name),quality: 30);
+        $Image = new ImageManager(new Driver());
+        $new_name = Str::random(5) . time() . '.' . $this->image->getClientOriginalExtension();
+        $image = $Image->read($this->image)->resize(1280, 720);
+        $image->save('uploads/courses/' . $new_name, quality: 30);
 
-    //     // Course::create($data + [
-    //     //     'image' => $new_name,
-    //     //     'updated_at' => null,
-    //     // ]);
-        
-    //     $this->reset();
+        Course::create(
+            $data + [
+                'image' => $new_name,
+                'updated_at' => null,
+            ],
+        );
 
-    //     flash()->options(['timeout'=>1500,])->title('Add Item')->addSuccess('Course Added Successfully');
-        
-    // }
+        $this->reset();
 
-    // public function courseDelete($id)
-    // {
-    //     Course::find($id)->delete();
-    //     flash()
-    //         ->title('Delete')
-    //         ->options(['timeout' => 1500])
-    //         ->addError('Course Deleted');
-    // }
+        flash()
+            ->options(['timeout' => 1500])
+            ->title('Add Item')
+            ->addSuccess('Course Added Successfully');
+    }
 
+    public function courseDelete($id)
+    {
+        Course::find($id)->delete();
+        flash()
+            ->title('Delete')
+            ->options(['timeout' => 1500])
+            ->addError('Course Deleted');
+    }
 }; ?>
-
 <div>
     <style>
         img {
@@ -133,6 +138,17 @@ new class extends Component {
                                     <p class="text-danger">{{ $message }}</p>
                                 @enderror
 
+                                <div class="my-2">
+                                    <label for="status">Select Status</label>
+                                    <select id="status"  class="form-select" wire:model.live='status'>
+                                        <option value="">Status</option>
+                                        <option class="badge rounded-pill badge-danger" value="0">Hold
+                                        </option>
+                                        <option class="badge rounded-pill badge-success" value="1">
+                                            Active</option>
+                                    </select>
+                                </div>
+
                                 {{-- <label class="form-label mb-2" for="image">Course Image</label>
                                 <input id="image"  class="form-control mb-2" wire:model='image' type="file" placeholder="Enter Course Image" />
                                 <img src="" width="200" height="150" alt="Preview Uploaded Image" id="blah" /> --}}
@@ -141,11 +157,13 @@ new class extends Component {
                                 <img src="" width="200" height="150" alt="Preview Uploaded Image" id="blah" /> --}}
 
 
-                                <label wire:loading.remove for="file-upload">Upload Image</label>
-                                <input wire:loading.remove wire:model.lazy='image' class="form-control mb-2" type="file" id="file-upload"
-                                    {{-- accept="image/*" onchange="previewImage(event);"  --}} />
-                                <div wire:loading='image'> 
-                                    <label class="form-label"><h4>Uploading Image...</h4></label>
+                                <label wire:loading.remove wire:target='image' for="file-upload">Upload Image</label>
+                                <input wire:loading.remove wire:model='image' class="form-control mb-2" type="file"
+                                    id="file-upload" {{-- accept="image/*" onchange="previewImage(event);"  --}} />
+                                <div wire:loading wire:target='image'>
+                                    <label class="form-label">
+                                        <h4>Uploading Image...</h4>
+                                    </label>
                                 </div>
                                 {{-- <div >
                                     <label for="file-upload">Upload Image</label>
@@ -179,7 +197,7 @@ new class extends Component {
                                         <th scope="col">Regualr Price</th>
                                         <th scope="col">Discount Price</th>
                                         <th scope="col">Status</th>
-                                        <th scope="col">Created At</th>
+                                        <th scope="col">Details</th>
                                         <th class="text-center" scope="col">Action</th>
                                     </tr>
                                 </thead>
@@ -191,20 +209,20 @@ new class extends Component {
                                             <td>{{ $course->title }}</td>
                                             <td>{{ $course->regular_price }}</td>
                                             <td>{{ $course->discount_price }}</td>
-                                            <td>
-                                                {{-- @if ($course->status == 0)
+                                            <td style="font-size: 16px">
+                                                @if ($course->status == 0)
                                                     <p class="badge rounded-pill badge-danger">Hold</button>
                                                 @else
                                                     <p class="badge rounded-pill badge-success">Active</button>
-                                                @endif --}}
-                                                <select wire:model.live='status'>
-                                                    <option value="">Select Status</option>
-                                                    <option class="badge rounded-pill badge-danger" value="0" >Hold</option>
-                                                    <option class="badge rounded-pill badge-success" value="1">Active</option>
-                                                </select>
-                                                {{ $status }}
+                                                @endif
                                             </td>
-                                            <td>{{ $course->created_at->diffForHumans() }}</td>
+                                            <td class="fs-5 text-center">
+                                                <!-- Button trigger modal -->
+                                                <button type="button" class="btn btn-outline-success btn-pill btn-sm" data-bs-toggle="modal" data-bs-target="#exampleModal">
+                                                    {{ $course->id }}
+                                                    <i style="font-size: 16px" class="fa fa-pencil" aria-hidden="true"></i>
+                                                </button>
+                                            </td>
                                             <td class="text-center">
                                                 <button type="submit" wire:click="courseDelete({{ $course->id }})"
                                                     class="btn btn-sm btn-pill btn-danger">
@@ -220,8 +238,27 @@ new class extends Component {
                                     @endforelse
                                 </tbody>
                             </table>
+                            {{ $courses->links('pagination::bootstrap-4') }}
                         </div>
                     </div>
+                        <!-- Modal -->
+                        <div wire:ignore.self class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                            <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                <h1 class="modal-title fs-5" id="exampleModalLabel">Modal title</h1>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                ...
+                                </div>
+                                <div class="modal-footer">
+                                <button type="button" class="btn btn-sm btn-outline-secondary btn-pill" data-bs-dismiss="modal">Close</button>
+                                <button type="button" class="btn btn-sm btn-outline-primary btn-pill">Save changes</button>
+                                </div>
+                            </div>
+                            </div>
+                        </div>
                 </div>
             </div>
         </div>
