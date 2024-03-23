@@ -9,6 +9,7 @@ use Intervention\Image\ImageManager;
 use Intervention\Image\Drivers\Gd\Driver;
 use App\Models\Course;
 use App\Models\User;
+use Illuminate\Support\Carbon;
 
 new class extends Component {
     use WithFileUploads;
@@ -16,6 +17,21 @@ new class extends Component {
     //define Properties
     #Validate[]
     public $title, $name, $regular_price, $discount_price, $image, $status;
+
+    #Validate[]
+    public $cTitle, $cName, $cRPrice, $cDPrice, $cImage, $cEImage, $cStatus;
+
+    public $id,
+        $courseDetail = null;
+
+    // Course Delete message
+    public function DeleteMessage()
+    {
+        flash()
+            ->title('Delete')
+            ->options(['timeout' => 1500])
+            ->addError('Course Deleted');
+    }
 
     public function with(): array
     {
@@ -70,20 +86,56 @@ new class extends Component {
 
     public function courseDelete($id)
     {
-        Course::find($id)->delete();
-        flash()
-            ->title('Delete')
-            ->options(['timeout' => 1500])
-            ->addError('Course Deleted');
+        $imagePath = Course::select('image')->where('id', $id)->first();
+        $filePath = public_path('uploads/courses/') . $imagePath->image;
+
+        if (file_exists($filePath)) {
+            unlink($filePath);
+            Course::Where('id', $id)->delete();
+            $this->DeleteMessage();
+        } else {
+            Course::Where('id', $id)->delete();
+            $this->DeleteMessage();
+        }
+    }
+
+    public function courseDetails($id)
+    {
+        $this->courseDetail = Course::find($id);
+        // return $this->courseDetail;
+        // dd($this->courseDetail->title);
+    }
+
+    public function courseEdit($id)
+    {
+        $course = Course::find($id);
+
+        $this->id = $course->id;
+        $this->cTitle = $course->title;
+        $this->cName = $course->name;
+        $this->cRPrice = $course->regular_price;
+        $this->cDPrice = $course->discount_price;
+        $this->cImage = $course->image;
+        $this->cStatus = $course->status;
+    }
+
+    public function updateCourse($id)
+    {
+        $data = [
+            'title' => $this->cTitle,
+            'name' => $this->cName,
+            'regular_price' => $this->cRPrice,
+            'discount_price' => $this->cDPrice,
+            'image' => $this->cEImage,
+            'status' => $this->cStatus,
+            'updated_at' => Carbon::now()
+        ];
+
+        Course::find($id)->update($data);
+        flash()->title('Update')->options(['timeout' => 1500])->addSuccess('Course Update Successfully');
     }
 }; ?>
 <div>
-    <style>
-        img {
-            max-width: 250px;
-            border-radius: 5px;
-        }
-    </style>
     <!-- Page Sidebar Ends-->
     <div class="page-body">
         <div class="container-fluid">
@@ -140,7 +192,7 @@ new class extends Component {
 
                                 <div class="my-2">
                                     <label for="status">Select Status</label>
-                                    <select id="status"  class="form-select" wire:model.live='status'>
+                                    <select id="status" class="form-select" wire:model.live='status'>
                                         <option value="">Status</option>
                                         <option class="badge rounded-pill badge-danger" value="0">Hold
                                         </option>
@@ -211,24 +263,31 @@ new class extends Component {
                                             <td>{{ $course->discount_price }}</td>
                                             <td style="font-size: 16px">
                                                 @if ($course->status == 0)
-                                                    <p class="badge rounded-pill badge-danger">Hold</button>
-                                                @else
+                                                    <p class="badge roPunded-pill badge-danger">Hold</button>
+                                                    @else
                                                     <p class="badge rounded-pill badge-success">Active</button>
                                                 @endif
                                             </td>
                                             <td class="fs-5 text-center">
-                                                <!-- Button trigger modal -->
-                                                <button type="button" class="btn btn-outline-success btn-pill btn-sm" data-bs-toggle="modal" data-bs-target="#exampleModal">
-                                                    {{ $course->id }}
-                                                    <i style="font-size: 16px" class="fa fa-pencil" aria-hidden="true"></i>
+                                                <!-- Button for Details  -->
+                                                <button wire:click="courseDetails({{ $course->id }})" type="button"
+                                                    class="btn btn-outline-success btn-pill btn-sm"
+                                                    data-bs-toggle="modal" data-bs-target="#exampleModal">
+                                                    <i style="font-size: 15px" class="fa fa-book"
+                                                        aria-hidden="true"></i>
                                                 </button>
                                             </td>
                                             <td class="text-center">
-                                                <button type="submit" wire:click="courseDelete({{ $course->id }})"
-                                                    class="btn btn-sm btn-pill btn-danger">
-                                                    <i style="font-size: 12px" class="fa fa-trash"
-                                                        aria-hidden="true"></i>
-                                                </button>
+                                                {{-- Delete Course --}}
+                                                <i wire:click="courseDelete({{ $course->id }})"
+                                                    style="font-size: 16px; cursor: pointer; margin-right: 5px; color: red"
+                                                    class="fa fa-trash"aria-hidden="true"></i>
+
+                                                {{-- Edit Course --}}
+                                                <i data-bs-toggle="modal" data-bs-target="#editModal"
+                                                    wire:click="courseEdit({{ $course->id }})"
+                                                    style="font-size: 16px; cursor: pointer; color: #00AC46"
+                                                    class="fa fa-pencil" aria-hidden="true"></i>
                                             </td>
                                         </tr>
                                     @empty
@@ -239,32 +298,116 @@ new class extends Component {
                                 </tbody>
                             </table>
                             {{ $courses->links('pagination::bootstrap-4') }}
+                            {{-- {{ $courseDetail->name }} --}}
                         </div>
                     </div>
-                        <!-- Modal -->
-                        <div wire:ignore.self class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-                            <div class="modal-dialog">
+
+                    <!-- Edit Modal -->
+                    <div wire:ignore.self class="modal fade" id="editModal" tabindex="-1"
+                        aria-labelledby="editModalLabel" aria-hidden="true">
+                        <div class="modal-dialog">
                             <div class="modal-content">
                                 <div class="modal-header">
-                                <h1 class="modal-title fs-5" id="exampleModalLabel">Modal title</h1>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    <h1 class="modal-title fs-5" id="editModalLabel">Edit Course</h1>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                        aria-label="Close"></button>
                                 </div>
                                 <div class="modal-body">
-                                ...
+                                    <form wire:submit='updateCourse({{ $id }})'
+                                        enctype="multipart/form-data">
+                                        <div class="my-2">
+                                            <label class="form-label" for="cTitle">Title</label>
+                                            <input id="cTitle" class="form-control" wire:model='cTitle'
+                                                type="text" value="{{ $cTitle }}">
+                                        </div>
+                                        <div class="my-2">
+                                            <label class="form-label" for="cName">Name</label>
+                                            <input id="cName" class="form-control" wire:model='cName'
+                                                type="text" value="{{ $cName }}">
+                                        </div>
+                                        <div class="my-2">
+                                            <label class="form-label" for="cRPrice">Regular Price</label>
+                                            <input id="cRPrice" class="form-control" wire:model='cRPrice'
+                                                type="text" value="{{ $cRPrice }}">
+                                        </div>
+                                        <div class="my-2">
+                                            <label class="form-label" for="cDPrice">Discount Price</label>
+                                            <input id="cDPrice" class="form-control" wire:model='cDPrice'
+                                                type="text" value="{{ $cDPrice }}">
+                                        </div>
+                                        <div class="my-2">
+                                            <label class="form-label" for="cImage">Image</label>
+                                            <br>
+                                            <img class="rounded" width="400" height="200"
+                                                src="{{ asset('uploads/courses') }}/{{ $cImage }}"
+                                                alt="{{ $cImage }}">
+                                        </div>
+                                        <div class="my-2">
+                                            <label class="form-label" for="cImage">Title</label>
+                                            <select class="form-select" wire:model='cStatus' id="cStatus">
+                                                <option value="">Select Status</option>
+                                                <option class="bg-danger" value="0"
+                                                    {{ $cStatus == 0 ? 'selected' : '' }}>Hold</option>
+                                                <option class="bg-success" value="1"
+                                                    {{ $cStatus == 1 ? 'selected' : '' }}>Active</option>
+                                            </select>
+                                        </div>
+                                        <p class="d-inline-flex gap-1 my-2">
+                                            <a class="btn btn-primary" data-bs-toggle="collapse"
+                                                href="#collapseExample" role="button" aria-expanded="false"
+                                                aria-controls="collapseExample">Update Photo (Optional)</a>
+                                        </p>
+                                        <div class="collapse" id="collapseExample">
+                                            <input wire:loading.remove class="form-control" type="file"
+                                                wire:model='cEImage'>
+                                            <div wire:loading wire:target='cEImage'>
+                                                <h4>Uploading Image...</h4>
+                                            </div>
+                                        </div>
+                                        <div class="d-flex justify-content-end">
+                                            <x-button.button submit='submit' buttonName='Save' />
+                                        </div>
+                                    </form>
                                 </div>
-                                <div class="modal-footer">
-                                <button type="button" class="btn btn-sm btn-outline-secondary btn-pill" data-bs-dismiss="modal">Close</button>
-                                <button type="button" class="btn btn-sm btn-outline-primary btn-pill">Save changes</button>
-                                </div>
-                            </div>
                             </div>
                         </div>
+                    </div>
+
+                    <!-- Details Modal -->
+                    <div wire:ignore.self class="modal fade" id="exampleModal" tabindex="-1"
+                        aria-labelledby="exampleModalLabel" aria-hidden="true">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h1 class="modal-title fs-5" id="exampleModalLabel">Details Course</h1>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                        aria-label="Close"></button>
+                                </div>
+                                @if ($courseDetail != null)
+                                    <div class="modal-body d-flex justify-content-center">
+                                        <div class="card" style="width: 25rem;">
+                                            <img src="{{ asset('uploads') }}/courses/{{ $courseDetail->image }}"
+                                                class="card-img-top" alt="">
+                                            <div class="card-body">
+                                                <h5 class="card-title">{{ $courseDetail->name }}</h5>
+                                                <p class="card-text">{{ $courseDetail->title }}</p>
+                                                <div class="d-flex ">
+                                                    <p class="me-3 ">Discounted Fee :
+                                                        &#2547;{{ $courseDetail->discount_price }}</p>
+                                                    <p class="text-danger">Regular Fee :
+                                                        &#2547;<del>{{ $courseDetail->regular_price }}</del></p>
+                                                </div>
+                                            </div>
+                                @endif
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
-        <!-- Container-fluid Ends-->
     </div>
+</div>
 
-    @push('scripts')
-        <script src="{{ asset('dashboard_assests') }}/js/custom.js"></script>
-    @endpush
+@push('scripts')
+    <script src="{{ asset('dashboard_assests') }}/js/custom.js"></script>
+@endpush
