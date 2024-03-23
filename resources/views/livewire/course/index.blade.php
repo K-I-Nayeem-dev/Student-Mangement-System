@@ -19,10 +19,9 @@ new class extends Component {
     public $title, $name, $regular_price, $discount_price, $image, $status;
 
     #Validate[]
-    public $cTitle, $cName, $cRPrice, $cDPrice, $cImage, $cEImage, $cStatus;
+    public $cTitle, $cName, $cRPrice, $cDPrice, $cImage, $cEImage = null, $cStatus;
 
-    public $id,
-        $courseDetail = null;
+    public $id,$courseDetail = null;
 
     // Course Delete message
     public function DeleteMessage()
@@ -31,6 +30,15 @@ new class extends Component {
             ->title('Delete')
             ->options(['timeout' => 1500])
             ->addError('Course Deleted');
+    }
+
+    // Course Success message
+    public function successMessage($message)
+    {
+        flash()
+            ->title('Success')
+            ->options(['timeout' => 1500])
+            ->addSuccess($message);
     }
 
     public function with(): array
@@ -76,12 +84,8 @@ new class extends Component {
             ],
         );
 
+        $this->successMessage('Course Added Successfully');
         $this->reset();
-
-        flash()
-            ->options(['timeout' => 1500])
-            ->title('Add Item')
-            ->addSuccess('Course Added Successfully');
     }
 
     public function courseDelete($id)
@@ -109,7 +113,6 @@ new class extends Component {
     public function courseEdit($id)
     {
         $course = Course::find($id);
-
         $this->id = $course->id;
         $this->cTitle = $course->title;
         $this->cName = $course->name;
@@ -121,19 +124,52 @@ new class extends Component {
 
     public function updateCourse($id)
     {
+        $this->validate([
+            'cTitle' => 'required|min:4',
+            'cName' => 'required|min:4',
+            'cRPrice' => 'required',
+            'cDPrice' => 'required',
+            'cStatus' => 'required',
+        ]);
+
         $data = [
             'title' => $this->cTitle,
             'name' => $this->cName,
             'regular_price' => $this->cRPrice,
             'discount_price' => $this->cDPrice,
-            'image' => $this->cEImage,
             'status' => $this->cStatus,
             'updated_at' => Carbon::now()
         ];
 
-        Course::find($id)->update($data);
-        flash()->title('Update')->options(['timeout' => 1500])->addSuccess('Course Update Successfully');
+        
+        $imagePath = Course::select('image')->where('id', $id)->first();
+        $filePath = public_path('uploads/courses/') . $imagePath->image;
+
+        if($this->cEImage != null){
+            if(file_exists($filePath)){
+
+                unlink($filePath);
+
+                $Image = new ImageManager(new Driver());
+                $new_name = Str::random(5) . time() . '.' . $this->cEImage->getClientOriginalExtension();
+                $image = $Image->read($this->cEImage)->resize(1280, 720);
+                $image->save('uploads/courses/' . $new_name, quality: 30);
+
+                Course::find($id)->update($data + ['image' => $new_name]);
+                $this->successMessage('Course Update Successfully');
+
+            }
+            else{
+                Course::find($id)->update($data); 
+                $this->successMessage('Course Update Successfully');
+            }
+        }
+        else{
+            Course::find($id)->update($data); 
+            $this->successMessage('Course Update Successfully');
+        }
     }
+
 }; ?>
 <div>
     <!-- Page Sidebar Ends-->
@@ -319,26 +355,38 @@ new class extends Component {
                                             <label class="form-label" for="cTitle">Title</label>
                                             <input id="cTitle" class="form-control" wire:model='cTitle'
                                                 type="text" value="{{ $cTitle }}">
+                                            @error('cTitle')
+                                                <p class="text-danger">{{ $message }}</p>
+                                            @enderror
                                         </div>
                                         <div class="my-2">
                                             <label class="form-label" for="cName">Name</label>
                                             <input id="cName" class="form-control" wire:model='cName'
                                                 type="text" value="{{ $cName }}">
+                                            @error('cName')
+                                                <p class="text-danger">{{ $message }}</p>
+                                            @enderror
                                         </div>
                                         <div class="my-2">
                                             <label class="form-label" for="cRPrice">Regular Price</label>
                                             <input id="cRPrice" class="form-control" wire:model='cRPrice'
                                                 type="text" value="{{ $cRPrice }}">
+                                            @error('cRPrice')
+                                                <p class="text-danger">{{ $message }}</p>
+                                            @enderror
                                         </div>
                                         <div class="my-2">
                                             <label class="form-label" for="cDPrice">Discount Price</label>
                                             <input id="cDPrice" class="form-control" wire:model='cDPrice'
                                                 type="text" value="{{ $cDPrice }}">
+                                            @error('cDPrice')
+                                                <p class="text-danger">{{ $message }}</p>
+                                            @enderror
                                         </div>
                                         <div class="my-2">
                                             <label class="form-label" for="cImage">Image</label>
                                             <br>
-                                            <img class="rounded" width="400" height="200"
+                                            <img class="rounded text-center" width="400" height="200"
                                                 src="{{ asset('uploads/courses') }}/{{ $cImage }}"
                                                 alt="{{ $cImage }}">
                                         </div>
@@ -351,9 +399,12 @@ new class extends Component {
                                                 <option class="bg-success" value="1"
                                                     {{ $cStatus == 1 ? 'selected' : '' }}>Active</option>
                                             </select>
+                                            @error('cStatus')
+                                                <p class="text-danger">{{ $message }}</p>
+                                            @enderror
                                         </div>
                                         <p class="d-inline-flex gap-1 my-2">
-                                            <a class="btn btn-primary" data-bs-toggle="collapse"
+                                            <a class="btn btn-outline-primary btn-sm" data-bs-toggle="collapse"
                                                 href="#collapseExample" role="button" aria-expanded="false"
                                                 aria-controls="collapseExample">Update Photo (Optional)</a>
                                         </p>
@@ -364,8 +415,9 @@ new class extends Component {
                                                 <h4>Uploading Image...</h4>
                                             </div>
                                         </div>
-                                        <div class="d-flex justify-content-end">
-                                            <x-button.button submit='submit' buttonName='Save' />
+                                        <div class="d-flex justify-content-end mt-2">
+                                            <p class="btn btn-outline-danger btn-sm btn-pill me-2" data-bs-dismiss="modal" >Close</p>
+                                            <button type="submit" class="btn btn-outline-primary btn-sm btn-pill" >Save</button>
                                         </div>
                                     </form>
                                 </div>
