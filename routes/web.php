@@ -10,6 +10,7 @@ use App\Http\Controllers\RoleController;
 use App\Http\Controllers\SettingController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Auth;
+use App\Http\Controllers\BkashPaymentController;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -51,6 +52,19 @@ Route::group(['middleware' => 'web'], function(){
         'purchase' => CoursePurchaseController::class,
         'coupon' => CouponController::class,
     ]);
+
+    Route::group(['middleware' => ['auth'], 'controller' => BkashPaymentController::class], function () {
+        // Payment Routes for bKash
+        Route::get('/bkash/payment', 'index');
+        Route::post('/bkash/get-token', 'getToken')->name('bkash-get-token');
+        Route::post('/bkash/create-payment', 'createPayment')->name('bkash-create-payment');
+        Route::post('/bkash/execute-payment', 'executePayment')->name('bkash-execute-payment');
+        Route::get('/bkash/query-payment', 'queryPayment')->name('bkash-query-payment');
+        Route::post('/bkash/success', 'bkashSuccess')->name('bkash-success');
+        // Refund Routes for bKash
+        Route::get('/bkash/refund', 'refundPage')->name('bkash-refund');
+        Route::post('/bkash/refund', 'refund')->name('bkash-refund');
+    });
     
 });
 

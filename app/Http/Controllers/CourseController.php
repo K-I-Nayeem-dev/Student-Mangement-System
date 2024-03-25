@@ -20,7 +20,7 @@ class CourseController extends Controller
      */
     public function create()
     {
-        //
+        return view('layouts.dashboard.course.create');
     }
 
     /**
@@ -36,7 +36,7 @@ class CourseController extends Controller
      */
     public function show(Course $course)
     {
-        //
+        
     }
 
     /**

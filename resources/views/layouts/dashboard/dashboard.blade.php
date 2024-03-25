@@ -201,8 +201,43 @@
                                 </div>
                             </li>
 
-                            {{-- Users Add And View --}}
-                            <li class="sidebar-list"><i class="fa fa-thumb-tack"> </i><a
+                            {{-- for user Role --}}
+                            @if (Auth::user()->role != 'admin')      
+                                {{-- User profile Routes --}}
+                                <li class="sidebar-list"><i class="fa fa-thumb-tack"> </i><a
+                                        class="sidebar-link sidebar-title" href="#">
+                                        <svg class="stroke-icon">
+                                            <use href="{{ asset('dashboard_assests') }}/svg/icon-sprite.svg#stroke-home">
+                                            </use>
+                                        </svg>
+                                        <svg class="fill-icon">
+                                            <use href="{{ asset('dashboard_assests') }}/svg/icon-sprite.svg#fill-home">
+                                            </use>
+                                        </svg><span>Users</span></a>
+                                    <ul class="sidebar-submenu">
+                                            <li><a href="{{ route('profile') }}"><i class="fa fa-user me-1" aria-hidden="true"></i>Profile</a></li>
+                                    </ul>
+                                </li>
+
+                                {{-- Courses Route for Users --}}
+                                <li class="sidebar-list"><i class="fa fa-thumb-tack"> </i><a
+                                    class="sidebar-link sidebar-title" href="#">
+                                    <i style="color: white" class="fa fa-book" aria-hidden="true"></i>
+                                    <svg class="fill-icon">
+                                        <use href="{{ asset('dashboard_assests') }}/svg/icon-sprite.svg#fill-home">
+                                        </use>
+                                    </svg><span>Courses</span></a>
+                                <ul class="sidebar-submenu">
+                                    <li><a href="{{ route('course.index') }}"><i class="fa fa-user me-1"aria-hidden="true"></i>All Courses</a></li>
+                                </ul>
+                            </li>
+                            @endif
+
+                            {{-- For Admin & Moderators == Admin Route --}}
+                            @if (Auth::user()->role == 'admin')
+
+                                {{--Add Users & Remove users Lists  --}}
+                                <li class="sidebar-list"><i class="fa fa-thumb-tack"> </i><a
                                     class="sidebar-link sidebar-title" href="#">
                                     <svg class="stroke-icon">
                                         <use href="{{ asset('dashboard_assests') }}/svg/icon-sprite.svg#stroke-home">
@@ -212,20 +247,18 @@
                                         <use href="{{ asset('dashboard_assests') }}/svg/icon-sprite.svg#fill-home">
                                         </use>
                                     </svg><span>Users</span></a>
-                                <ul class="sidebar-submenu">
-                                    @if (Auth::user()->role == 'admin')
-                                        <li><a href="{{ route('user.index') }}"><i class="fa fa-user me-1"
-                                                    aria-hidden="true"></i>All User</a></li>
-                                        <li><a href="{{ route('user.create') }}"><i class="fa fa-user-plus"
-                                                    aria-hidden="true"></i>
-                                                Add User</a></li>
-                                    @else
-                                        <li><a href="{{ route('profile') }}"><i class="fa fa-user me-1"
-                                                    aria-hidden="true"></i>Profile</a></li>
-                                    @endif
-                                </ul>
-                            </li>
-                            @if (Auth::user()->role == 'admin')
+                                    <ul class="sidebar-submenu">
+                                        @if (Auth::user()->role == 'admin')
+                                            <li><a href="{{ route('user.index') }}"><i class="fa fa-user me-1"
+                                                        aria-hidden="true"></i>All User</a></li>
+                                            <li><a href="{{ route('user.create') }}"><i class="fa fa-user-plus"
+                                                        aria-hidden="true"></i>
+                                                    Add User</a></li>
+                                        @else
+                                            <li><a href="{{ route('profile') }}"><i class="fa fa-user me-1" aria-hidden="true"></i>Profile</a></li>
+                                        @endif
+                                    </ul>
+                                </li>
 
                                 {{-- Role & permission --}}
                                 <li class="sidebar-list"><i class="fa fa-thumb-tack"> </i><a
@@ -253,7 +286,7 @@
                                     <ul class="sidebar-submenu">
                                             <li><a href="{{ route('course.index') }}"><i class="fa fa-plus-square me-1"
                                                         aria-hidden="true"></i>Add Course</a></li>
-                                            <li><a href="{{ route('course.index') }}"><i class="fa fa-address-book-o me-1" aria-hidden="true"></i>View Course</a></li>
+                                            <li><a href="{{ route('course.create') }}"><i class="fa fa-address-book-o me-1" aria-hidden="true"></i>View Course</a></li>
                                     </ul>
                                 </li>
 

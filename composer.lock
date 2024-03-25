@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "d64c84dc6be184c13482819fdfb858cb",
+    "content-hash": "c79c142917d42012f7fc060c92356bbd",
     "packages": [
         {
             "name": "brick/math",
@@ -1180,6 +1180,65 @@
                 }
             ],
             "time": "2024-03-13T16:26:15+00:00"
+        },
+        {
+            "name": "karim007/laravel-bkash",
+            "version": "v2.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/karim-007/laravel-bkash.git",
+                "reference": "26d6a750304b55e4543d4a10d7ae9174cea1aebe"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/karim-007/laravel-bkash/zipball/26d6a750304b55e4543d4a10d7ae9174cea1aebe",
+                "reference": "26d6a750304b55e4543d4a10d7ae9174cea1aebe",
+                "shasum": ""
+            },
+            "require": {
+                "ext-curl": "*",
+                "illuminate/support": "^6|^7|^8|^9|^10",
+                "php": "^7.4|^8.0|^8.1|^8.2"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "Karim007\\LaravelBkash\\BkashServiceProvider"
+                    ],
+                    "aliases": {
+                        "LaravelBkash": "Karim007\\LaravelBkash\\LaravelBkash"
+                    }
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Karim007\\LaravelBkash\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Md abdul karim",
+                    "email": "karim.cse007@gmail.com"
+                }
+            ],
+            "description": "This is bKash payment gateway for laravel",
+            "keywords": [
+                "bkash",
+                "bkash-payment",
+                "bkash-payment-gateway",
+                "laravel-bkash",
+                "laravel-bkash-payment"
+            ],
+            "support": {
+                "issues": "https://github.com/karim-007/laravel-bkash/issues",
+                "source": "https://github.com/karim-007/laravel-bkash/tree/v2.0.0"
+            },
+            "time": "2023-05-18T10:18:41+00:00"
         },
         {
             "name": "laravel/breeze",
