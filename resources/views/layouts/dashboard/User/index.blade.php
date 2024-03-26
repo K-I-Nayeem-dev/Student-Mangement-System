@@ -26,9 +26,13 @@
                         <div class="card social-profile">
                             <div class="card-body">
                                 <div class="social-img-wrap">
-                                    <div class="social-img"><img
-                                            src="{{ asset('dashboard_assests') }}/images/dashboard-3/profile.png"
-                                            alt="profile">
+                                    <div class="social-img">
+                                        @if (!Auth::user()->profile_picture)
+                                            <img alt="" src="{{ asset('dashboard_assests') }}/images/avtar/default_profile.jpg">
+                                        @else
+                                            <img width="80px" src="{{ asset('uploads/profile_pictures') }}/{{ $user->profile_picture }}"
+                                                alt="">
+                                        @endif
                                     </div>
                                     <div class="edit-icon">
                                         <svg>

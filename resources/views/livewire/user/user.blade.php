@@ -2,6 +2,7 @@
 
 use Livewire\Volt\Component;
 use App\Models\User;
+use App\Models\UserDetails;
 use App\Models\Role;
 use Illuminate\Support\Str;
 use App\Mail\SendPasswordMail;
@@ -9,6 +10,7 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Hash;
 
 new class extends Component {
+
     public function with(): array
     {
         return [
@@ -18,8 +20,6 @@ new class extends Component {
     }
 
     // define properties & Validate
-    #[Validate]
-    #[Validate]
     #[Validate]
     public $name, $email, $password, $role;
 
@@ -64,13 +64,21 @@ new class extends Component {
 
         Mail::to($this->email)->send(new SendPasswordMail($mailData));
 
-        User::create(
+        // adding a new user
+        $user = User::create(
             $data + [
                 'password' => Hash::make($this->password),
                 'added_by_admin' => 1,
                 'role' => 'user',
             ],
         );
+
+        // insert user details after add a User
+        UserDetails::create([
+            'user_id' => $user->id,
+            'created_at' => now(),
+            'update_at' => null
+        ]);
 
         $this->reset();
 

@@ -10,7 +10,10 @@ use App\Http\Controllers\RoleController;
 use App\Http\Controllers\SettingController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 use App\Http\Controllers\BkashPaymentController;
+use App\Http\Controllers\LinkController;
+
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -44,15 +47,22 @@ Route::group(['middleware' => 'web'], function(){
         Route::get('profile/setting', 'index')->name('profile.setting');
     });
 
-    // Resource Controller
+    // Resource Controller For All
     Route::resources([
-        'user' => UserController::class,
-        'role' => RoleController::class,
         'course' => CourseController::class,
-        'purchase' => CoursePurchaseController::class,
-        'coupon' => CouponController::class,
     ]);
 
+    // Resourse Controller For Only Admin
+    Route::group(['middleware' => 'admin'], function(){
+        Route::resources([
+            'user' => UserController::class,
+            'role' => RoleController::class,
+            'purchase' => CoursePurchaseController::class,
+            'coupon' => CouponController::class, 
+        ]);
+    });
+
+    // Bkash Routes
     Route::group(['middleware' => ['auth'], 'controller' => BkashPaymentController::class], function () {
         // Payment Routes for bKash
         Route::get('/bkash/payment', 'index');
@@ -65,6 +75,12 @@ Route::group(['middleware' => 'web'], function(){
         Route::get('/bkash/refund', 'refundPage')->name('bkash-refund');
         Route::post('/bkash/refund', 'refund')->name('bkash-refund');
     });
+
+    // Add Social Media Links Routes
+    Route::group(['controller' => LinkController::class], function(){
+        Route::get('/links', 'index')->name('link');
+    });
+    
     
 });
 

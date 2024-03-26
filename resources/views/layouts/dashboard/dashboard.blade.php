@@ -22,7 +22,7 @@
     <!-- ico-font-->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@icon/icofont@1.0.1-alpha.1/icofont.min.css">
     <!-- Themify icon-->
-    <link rel="stylesheet" type="text/css" href="{{ asset('dashboard_assests') }}/css/vendors/themify.css">
+    {{-- <link rel="stylesheet" type="text/css" href="{{ asset('dashboard_assests') }}/css/vendors/themify.css"> --}}
     <!-- Flag icon-->
     <link rel="stylesheet" type="text/css" href="{{ asset('dashboard_assests') }}/css/vendors/flag-icon.css">
     <!-- Feather icon-->
@@ -120,9 +120,12 @@
                             </div>
                         </li>
                         <li class="profile-nav onhover-dropdown">
-                            <div class="media profile-media"><img class="b-r-10"
-                                    src="{{ asset('dashboard_assests') }}/images/dashboard/profile.png"
-                                    alt="">
+                            <div class="media profile-media">
+                                @if (Auth::user()->profile_picture)
+                                    <img width="30" height="30" style="border-radius: 50%" src="{{ asset('uploads/profile_pictures') }}/{{ Auth::user()->profile_picture }}" alt="{{ Auth::user()->profile_picture }}">
+                                @else
+                                    <img class="b-r-10" src="{{ asset('dashboard_assests') }}/images/avtar/default-profile.jpg" alt="">
+                                @endif
                                 <div class="media-body d-xxl-block d-none box-col-none">
                                     <div class="d-flex align-items-center gap-2">
                                         <span>{{ Auth::user()->name }}</span><i class="middle fa fa-angle-down"> </i>
