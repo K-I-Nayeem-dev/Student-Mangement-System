@@ -333,7 +333,9 @@
                                         </svg><span>Links</span></a>
                                     <ul class="sidebar-submenu">
                                             <li><a href="{{ route('link') }}"><i class="fa fa-external-link me-1"
-                                                        aria-hidden="true"></i>Links</a></li>
+                                                        aria-hidden="true"></i>Add Links Type</a></li>
+                                            <li><a href="{{ route('link') }}"><i class="fa fa-link me-1"
+                                                        aria-hidden="true"></i>Users Links</a></li>
                                     </ul>
                                 </li>
 

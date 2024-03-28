@@ -8,4 +8,10 @@ use Illuminate\Database\Eloquent\Model;
 class Link extends Model
 {
     use HasFactory;
+    
+    protected $guarded = [];
+
+    public function relToType(){
+        return $this->hasOne(linkType::class, 'id', 'id');
+    }
 }

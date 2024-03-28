@@ -14,9 +14,8 @@ return new class extends Migration
         Schema::create('links', function (Blueprint $table) {
             $table->id();
             $table->integer('user_id');
-            $table->string('name');
+            $table->string('type');
             $table->string('url');
-            $table->string('icon');
             $table->integer('status')->default(0);
             $table->timestamps();
         });

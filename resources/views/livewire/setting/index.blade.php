@@ -3,6 +3,8 @@
 use Livewire\Volt\Component;
 use App\Models\UserDetails;
 use App\Models\User;
+use App\Models\LinkType;
+use App\Models\Link;
 use App\Models\Validate;
 use Illuminate\Support\Facades\Hash;
 use App\Mail\UserPhoneNumberUpdate;
@@ -30,24 +32,28 @@ new class extends Component {
     public $otp;
 
     #Validate[]
-    public $password = '',
-        $password_confirmation = '';
+    public $password = '', $password_confirmation = '';
 
     #Validate[]
     public $company, $username, $email, $first_name, $last_name, $address, $city, $postal_code, $division, $about_me;
 
     public $status = 0, $user;
 
-    // public function with(): array
-    // {
-    //     return [
-    //         'user' => 
-    //     ];
-    // }
+    #Validate[]
+    public $url, $type, $linkStatus;
 
-    public function mount(){
+    public function with(): array
+    {
+        return [
+            'links' => LinkType::Where('status', 1)->get(),
+            'userLinks' => Link::Where('user_id', auth()->id())->get(),
+        ];
+    }
+
+    public function mount()
+    {
         $this->user = UserDetails::Where('user_id', auth()->id())->first();
-        dd($this->user);
+        // dd($this->user);
     }
 
     public function profileSave($id)
@@ -73,10 +79,10 @@ new class extends Component {
     }
 
     /*
-    * It validates user input for profile fields like bio, website,
-    * contact info, password etc. Updates user details in database
-    * on successful validation.
-    */
+     * It validates user input for profile fields like bio, website,
+     * contact info, password etc. Updates user details in database
+     * on successful validation.
+     */
 
     public function editInfo($id)
     {
@@ -119,8 +125,6 @@ new class extends Component {
             ->addSuccess('Update Profile Successfully');
     }
 
-
-
     /**
      * Validates new password and checks if it matches current password.
      * Shows error if new password matches current.
@@ -130,7 +134,7 @@ new class extends Component {
      *
      * @param {number} id - The user ID
      */
-    
+
     public function passwordCheck($id)
     {
         $this->validate([
@@ -179,7 +183,7 @@ new class extends Component {
     /**
      * Generates and verifies OTP for phone number verification.
      * Sends email for phone number update requests.
-    **/
+     **/
 
     public function sendOtp()
     {
@@ -263,6 +267,33 @@ new class extends Component {
             ->options(['timeouts' => 1500])
             ->addSuccess('phone Number Update Request Send');
     }
+
+    public function linkAdd()
+    {
+        $this->validate([
+            'type' => 'required',
+            'url' => 'required',
+            'linkStatus' => 'required'
+        ]);
+
+        $data = [
+            'user_id' => auth()->id(),
+            'type' => $this->type,
+            'url' => $this->url,
+            'status' => $this->linkStatus,
+            'created_at' => now(),
+            'updated_at' => null,
+        ];
+
+        Link::create($data);
+
+        flash()
+            ->title('Link')
+            ->options(['timeouts' => 1500])
+            ->addSuccess('Link Added To Profile');
+
+    }
+
 }; ?>
 
 <div>
@@ -529,7 +560,7 @@ new class extends Component {
                         <div class="card">
                             <div class="card-header">
 
-                                <h4>{{ !auth()->user()->phone_number ? "Add Contact Number" : 'Contact Number'  }}</h4>
+                                <h4>{{ !auth()->user()->phone_number ? 'Add Contact Number' : 'Contact Number' }}</h4>
                             </div>
                             <div class="card-body">
                                 @if (Auth::user()->phone_number)
@@ -558,22 +589,23 @@ new class extends Component {
                                     </form>
                                 @else
                                     @if (!Auth::user()->phone_verify)
-                                    <form wire:submit='verifyNumber({{ auth()->id() }})'>
-                                        <div class="my-2">
-                                            <label class="text-center">
-                                                <h4>Enter OTP</h4>
-                                            </label>
-                                            <input wire:model='otp' type="number" class="form-control">
-                                            @error('otp')
-                                                <p class="text-danger">{{ $message }}</p>
-                                            @enderror
-                                        </div>
-                                        <button wire:target='passwordChange' class="btn btn-primary btn-block">Verify
-                                            Number</button>
-                                        <div wire:loading wire:target='passwordChange'>
-                                            <h5>Verifying...</h5>
-                                        </div>
-                                    </form>
+                                        <form wire:submit='verifyNumber({{ auth()->id() }})'>
+                                            <div class="my-2">
+                                                <label class="text-center">
+                                                    <h4>Enter OTP</h4>
+                                                </label>
+                                                <input wire:model='otp' type="number" class="form-control">
+                                                @error('otp')
+                                                    <p class="text-danger">{{ $message }}</p>
+                                                @enderror
+                                            </div>
+                                            <button wire:target='passwordChange'
+                                                class="btn btn-primary btn-block">Verify
+                                                Number</button>
+                                            <div wire:loading wire:target='passwordChange'>
+                                                <h5>Verifying...</h5>
+                                            </div>
+                                        </form>
                                     @endif
                                 @endif
                                 @if (Auth::user()->phone_verify && !Auth::user()->phone_update)
@@ -587,6 +619,87 @@ new class extends Component {
                                     {{-- <p class="bg-primary px-3 py-2 rounded">Request Sended for Update Number</p> --}}
                                     <button disabled class="btn btn-primary">Request Sended for Update Number</p>
                                 @endif
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-6">
+                        <div class="card">
+                            <div class="card-header">
+                                <h4>Social Link Add</h4>
+                            </div>
+                            <div class="card-body">
+                                <form wire:submit="linkAdd">
+                                    <x-input.input type='text' fiwe='url' label='URL'
+                                        placeholder='Your Social Url' />
+                                    @error('url')
+                                        <p class="text-danger">{{ $message }}</p>
+                                    @enderror
+
+                                    <div class="my-3">
+                                        <select class="form-select" wire:model="type">
+                                            <option value="">Social Name</option>
+                                            @foreach ($links as $link)
+                                                <option value="{{ $link->id }}">{{ $link->name }}</option>
+                                            @endforeach
+                                        </select>
+                                        @error('type')
+                                            <p class="text-danger">{{ $message }}</p>
+                                        @enderror
+                                    </div>
+
+                                    <div class="my-3">
+                                        <select class="form-select" wire:model='linkStatus'>
+                                            <option value="">Select Status</option>
+                                            <option value="1">Active</option>
+                                            <option value="0">Inactive</option>
+                                        </select>
+                                        @error('linkStatus')
+                                            <p class="text-danger">{{ $message }}</p>
+                                        @enderror
+                                    </div>
+
+                                    <button type="submit" class="btn btn-primary">Add</button>
+
+                                </form>
+                            </div>
+                        </div>
+
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="card">
+                            <div class="card-header">
+                                <h4>Links</h4>
+                            </div>
+                            <div class="card-body">
+                                <table class="table">
+                                    <thead>
+                                        <tr>
+                                            <th scope="col">Sl</th>
+                                            <th scope="col">Name</th>
+                                            <th scope="col">URL</th>
+                                            <th scope="col">Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach ($userLinks as $link)
+                                        <tr>
+                                            <th scope="row">{{ $loop->iteration }}</th>
+                                            <td>{{ $link->relToType->name }}</td>
+                                            <td>
+                                                <a href="{{  }}" target="_blank">Visit</a>
+                                            </td>
+                                            <td>
+                                                <select>
+                                                    <option value="1" {{ $link->status ? 'selected' : '' }}>Active</option>
+                                                    <option value="0" {{ !$link->status ? 'selected' : '' }}>inactive</option>
+                                                </select>
+                                            </td>
+                                        </tr>
+                                        @endforeach
+                                    </tbody>
+                                </table>
                             </div>
                         </div>
                     </div>

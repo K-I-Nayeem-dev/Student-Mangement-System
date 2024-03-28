@@ -4,12 +4,26 @@ use Livewire\Volt\Component;
 use App\Models\LinkType;
 
 new class extends Component {
+
+    /**
+     * Validates the name, icon, and status properties.
+     * Validates the linkName, linkIcon, and linkStatus properties.
+     *
+     * Defines the id, file, icons, fontAwesome properties.
+     *
+     * Fetches the latest 5 links and provides them to the component as links.
+     */
+
     #Validate[]
     public $name, $icon, $status;
 
-    public $file, $icons, $fontAwesome;
+    #Validate[]
+    public $linkName, $linkIcon, $linkStatus;
 
-    public function with(): array{
+    public $id, $file, $icons, $fontAwesome;
+
+    public function with(): array
+    {
         return [
             'links' => LinkType::latest()->paginate(5),
         ];
@@ -21,6 +35,7 @@ new class extends Component {
     //     $this->icons = json_decode($this->file);
     //     $this->fontAwesome = $this->icons->icons;
     // }
+    
     /**
      * Validates the name, url, icon and status fields, creates a new Link model instance
      * with the validated data, persists it to the database, and shows a success flash
@@ -50,14 +65,56 @@ new class extends Component {
         $this->reset();
     }
 
-    public function editLink($id){
-        dd($id);
+    /**
+     * Populates the component properties with data for the link with the given ID.
+     *
+     * @param int $id The ID of the link to edit.
+     */
+    public function edit($id)
+    {
+        $link = LinkType::Where('id', $id)->first();
+
+        $this->id = $link->id;
+        $this->linkName = $link->name;
+        $this->linkIcon = $link->icon;
+        $this->linkStatus = $link->status;
     }
 
-    public function deleteLink($id){
-        dd($id);
+    /**
+     * Deletes a link with the given ID.
+     *
+     * Finds the Link model instance with the matching ID, deletes it from the database,
+     * and shows a flash message indicating the link was deleted successfully.
+     */
+    public function deleteLink($id)
+    {
+        LinkType::find($id)->delete();
+        flash()
+            ->title('Delete')
+            ->options(['timeout' => 1500])
+            ->addError('Link Delete Successfully');
     }
 
+    /**
+     * Updates the Link model with the given ID, setting its name, icon, status
+     * and updated_at fields to the passed values.
+     *
+     * Shows a success flash message when complete.
+     */
+    public function editLink($id)
+    {
+        LinkType::find($id)->update([
+            'name' => $this->linkName,
+            'icon' => $this->linkIcon,
+            'status' => $this->linkStatus,
+            'updated_at' => now(),
+        ]);
+
+        flash()
+            ->title('Link')
+            ->options(['timeout' => 1500])
+            ->addSuccess('Link Updated Successfully');
+    }
 }; ?>
 
 <div>
@@ -99,11 +156,11 @@ new class extends Component {
                                 </div>
 
                                 <div class="my-3">
-                                        <label class="form-label">Icon</label>
-                                        <input wire:model='icon' type="text" class="form-control" name="icon">
-                                        @error('icon')
-                                            <p class="text-danger">{{ $message }}</p>
-                                        @enderror
+                                    <label class="form-label">Icon</label>
+                                    <input wire:model='icon' type="text" class="form-control" name="icon">
+                                    @error('icon')
+                                        <p class="text-danger">{{ $message }}</p>
+                                    @enderror
                                     {{-- <div class="text-center ms-5 mt-4">
                                         <p class="icon" style="font-size: 35px;"></p>
                                     </div> --}}
@@ -159,7 +216,8 @@ new class extends Component {
                                             <th scope="row">{{ $loop->iteration }}</th>
                                             <td>{{ $link->name }}</td>
                                             <td>
-                                                <i style="font-size: 25px" class="fa fa-{{ $link->icon }}" aria-hidden="true">
+                                                <i style="font-size: 25px" class="fa fa-{{ $link->icon }}"
+                                                    aria-hidden="true">
                                                 </i>
                                             </td>
                                             <td style="text-align: center">
@@ -170,10 +228,15 @@ new class extends Component {
                                                 @endif
                                             </td>
                                             <td>
-                                                <button wire:click='editLink({{ $link->id }})' class="btn btn-primary">
+
+                                                <!-- Button trigger modal -->
+                                                <button wire:click='edit({{ $link->id }})' type="button"
+                                                    class="btn btn-primary" data-bs-toggle="modal"
+                                                    data-bs-target="#exampleModal">
                                                     <i class="fa fa-edit" aria-hidden="true"></i>
                                                 </button>
-                                                <button wire:click='deleteLink({{ $link->id }})' class="btn btn-danger">
+                                                <button wire:click='deleteLink({{ $link->id }})'
+                                                    class="btn btn-danger">
                                                     <i class="fa fa-trash" aria-hidden="true"></i>
                                                 </button>
                                             </td>
@@ -189,7 +252,51 @@ new class extends Component {
                         </div>
                     </div>
                 </div>
+            </div>
 
+            <!-- Modal -->
+            <div wire:ignore.self class="modal fade" id="exampleModal" tabindex="-1"
+                aria-labelledby="exampleModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h1 class="modal-title fs-5" id="exampleModalLabel">Edit Link</h1>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <form wire:submit='editLink({{ $id }})'>
+                                <div class="mb-3">
+                                    <label class="form-label">Name</label>
+                                    <input wire:model='linkName' type="text" class="form-control">
+                                    @error('name')
+                                        <p class="text-danger">{{ $message }}</p>
+                                    @enderror
+                                </div>
+                                <div class="my-3">
+                                    <label class="form-label">Icon</label>
+                                    <input wire:model='linkIcon' type="text" class="form-control" name="icon">
+                                    @error('icon')
+                                        <p class="text-danger">{{ $message }}</p>
+                                    @enderror
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Status</label>
+                                    <select wire:model='linkStatus' class="form-select">
+                                        <option value="">Select Status</option>
+                                        <option value="1" {{ $linkStatus ? 'selected' : '' }}>Active</option>
+                                        <option value="0" {{ !$linkStatus ? 'selected' : '' }}>Inactive</option>
+                                    </select>
+                                </div>
+
+                                <div class="d-flex justify-content-end">
+                                    <button class="btn btn-primary">Update</button>
+                                </div>
+
+                            </form>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
         <!-- Container-fluid Ends-->
