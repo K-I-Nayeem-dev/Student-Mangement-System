@@ -47,6 +47,13 @@ Route::group(['middleware' => 'web'], function(){
         Route::get('profile/setting', 'index')->name('profile.setting');
     });
 
+    
+    // Add Social Media Links Routes
+    Route::group(['middleware'=> 'admin','controller' => LinkController::class], function(){
+        Route::get('/links', 'index')->name('link');
+    });
+
+
     // Resource Controller For All
     Route::resources([
         'course' => CourseController::class,
@@ -75,13 +82,6 @@ Route::group(['middleware' => 'web'], function(){
         Route::get('/bkash/refund', 'refundPage')->name('bkash-refund');
         Route::post('/bkash/refund', 'refund')->name('bkash-refund');
     });
-
-    // Add Social Media Links Routes
-    Route::group(['controller' => LinkController::class], function(){
-        Route::get('/links', 'index')->name('link');
-    });
-    
-    
 });
 
 /**

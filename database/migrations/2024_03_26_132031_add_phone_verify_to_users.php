@@ -11,13 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('validates', function (Blueprint $table) {
-            $table->id();
-            $table->integer('user_id');
-            $table->integer('code')->nullable();
-            $table->string('number')->nullable();
-            $table->integer('status')->default(0);
-            $table->timestamps();
+        Schema::table('users', function (Blueprint $table) {
+            $table->integer('phone_verify')->default(0);
+            $table->integer('phone_update')->default(0);
         });
     }
 
@@ -26,6 +22,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('validates');
+        Schema::table('users', function (Blueprint $table) {
+            $table->dropColumns(['phone_verify', 'phone_update']);
+        });
     }
 };

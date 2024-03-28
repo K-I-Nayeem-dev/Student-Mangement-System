@@ -323,6 +323,20 @@
                                     </ul>
                                 </li>
 
+                                {{-- Links --}}
+                                <li class="sidebar-list"><i class="fa fa-thumb-tack"> </i><a
+                                        class="sidebar-link sidebar-title" href="#">
+                                        <i style="color: white" class="fa fa-link" aria-hidden="true"></i>
+                                        <svg class="fill-icon">
+                                            <use href="{{ asset('dashboard_assests') }}/svg/icon-sprite.svg#fill-home">
+                                            </use>
+                                        </svg><span>Links</span></a>
+                                    <ul class="sidebar-submenu">
+                                            <li><a href="{{ route('link') }}"><i class="fa fa-external-link me-1"
+                                                        aria-hidden="true"></i>Links</a></li>
+                                    </ul>
+                                </li>
+
                             @endif
                             <div class="right-arrow" id="right-arrow"><i data-feather="arrow-right"></i></div>
                     </div>

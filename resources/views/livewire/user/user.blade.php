@@ -213,3 +213,4 @@ new class extends Component {
         </div>
         <!-- Container-fluid Ends-->
     </div>
+</div>

@@ -3,11 +3,20 @@
 use Livewire\Volt\Component;
 use App\Models\UserDetails;
 use App\Models\User;
+use App\Models\Validate;
 use Illuminate\Support\Facades\Hash;
+use App\Mail\UserPhoneNumberUpdate;
+use Illuminate\Support\Facades\Mail;
 
 new class extends Component {
-
     // Define Properties
+    /*
+     * This class contains validation rules, data update methods,
+     * password update logic, OTP generation and verification,
+     * and phone number update requests for user profile management.
+     *
+     */
+
     #Validate[]
     public $bio, $website;
 
@@ -18,24 +27,34 @@ new class extends Component {
     public $number;
 
     #Validate[]
-    public $password = '', $password_confirmation = '';
+    public $otp;
 
     #Validate[]
-    public $company, $username, $email, $first_name, $last_name, $address, $city, $postal_code , $division, $about_me;
+    public $password = '',
+        $password_confirmation = '';
 
-    public $status = 0;
+    #Validate[]
+    public $company, $username, $email, $first_name, $last_name, $address, $city, $postal_code, $division, $about_me;
 
-    public function with(): array{
-        return [
-            'user' => UserDetails::Where('user_id', auth()->id())->first(),
-        ];
+    public $status = 0, $user;
+
+    // public function with(): array
+    // {
+    //     return [
+    //         'user' => 
+    //     ];
+    // }
+
+    public function mount(){
+        $this->user = UserDetails::Where('user_id', auth()->id())->first();
+        dd($this->user);
     }
-    
+
     public function profileSave($id)
     {
         $this->validate([
-            'bio' => 'required', 
-            'website' => 'required', 
+            'bio' => 'required',
+            'website' => 'required',
         ]);
 
         $data = [
@@ -47,33 +66,42 @@ new class extends Component {
 
         UserDetails::Where('user_id', $user->user_id)->update($data);
 
-        flash()->title('Info')->options(['timeouts' => 1500])->addSuccess('Save Info Successfully');
+        flash()
+            ->title('Info')
+            ->options(['timeouts' => 1500])
+            ->addSuccess('Save Info Successfully');
     }
 
-    public function editInfo($id){
+    /*
+    * It validates user input for profile fields like bio, website,
+    * contact info, password etc. Updates user details in database
+    * on successful validation.
+    */
 
+    public function editInfo($id)
+    {
         $this->validate([
             'company' => 'required',
             'username' => 'required',
             'email' => 'required',
-            'first_name' => 'required', 
+            'first_name' => 'required',
             'last_name' => 'required',
-            'address' => 'required', 
+            'address' => 'required',
             'city' => 'required',
             'postal_code' => 'required',
-            'division' => 'required', 
+            'division' => 'required',
             'about_me' => 'required',
         ]);
         $data = [
             'company' => $this->company,
             'username' => $this->username,
             'email' => $this->email,
-            'first_name' => $this->first_name, 
+            'first_name' => $this->first_name,
             'last_name' => $this->last_name,
-            'address' => $this->address, 
+            'address' => $this->address,
             'city' => $this->city,
             'postal_code' => $this->postal_code,
-            'division' => $this->division, 
+            'division' => $this->division,
             'about_me' => $this->about_me,
         ];
 
@@ -85,53 +113,156 @@ new class extends Component {
             'email' => $this->email,
         ]);
 
-        flash()->title('Edit Profile')->options(['timeouts' => 1500])->addSuccess('Update Profile Successfully');
+        flash()
+            ->title('Edit Profile')
+            ->options(['timeouts' => 1500])
+            ->addSuccess('Update Profile Successfully');
     }
 
 
-    public function passwordCheck($id){
 
+    /**
+     * Validates new password and checks if it matches current password.
+     * Shows error if new password matches current.
+     *
+     * Validates new password and confirmation. Updates user password
+     * if new password and confirmation match. Shows success message.
+     *
+     * @param {number} id - The user ID
+     */
+    
+    public function passwordCheck($id)
+    {
         $this->validate([
             'new_password' => 'required',
         ]);
 
-        if(Hash::check($this->new_password, auth()->user()->password)){
+        if (Hash::check($this->new_password, auth()->user()->password)) {
             $this->status = 1;
-        }
-        else{
-            flash()->title('Error')->options(['timeouts' => 1500, 'position' => 'top-center',])->addError("Password Doesn't Match");
+        } else {
+            flash()
+                ->title('Error')
+                ->options(['timeouts' => 1500, 'position' => 'top-center'])
+                ->addError("Password Doesn't Match");
         }
 
+        $this->password = '';
+        $this->password_confirmation = '';
     }
 
-    public function passwordChange($id){
-
+    public function passwordChange($id)
+    {
         $this->validate([
-            'password' =>   'required|min:5',
+            'password' => 'required|min:5',
             'password_confirmation' => 'required',
         ]);
 
-        if($this->password == $this->password_confirmation){
+        if ($this->password == $this->password_confirmation) {
             User::find($id)->update([
-                'password'=> Hash::make($this->password),
+                'password' => Hash::make($this->password),
             ]);
 
             $this->status = 0;
-            flash()->title('Password')->options(['timeouts' => 1500])->addSuccess('Change Password Successfully');
-
+            flash()
+                ->title('Password')
+                ->options(['timeouts' => 1500])
+                ->addSuccess('Change Password Successfully');
+        } else {
+            flash()
+                ->title('Error')
+                ->options(['timeouts' => 1500, 'position' => 'top-center'])
+                ->addError("Password Doesn't Match");
         }
-        else{
-            flash()->title('Error')->options(['timeouts' => 1500, 'position' => 'top-center',])->addError("Password Doesn't Match");
-        }
-        
+        $this->new_password = '';
     }
 
-    public function addPhone($id){
-        User::find($id)->update([
+    /**
+     * Generates and verifies OTP for phone number verification.
+     * Sends email for phone number update requests.
+    **/
+
+    public function sendOtp()
+    {
+        flash()
+            ->title('OTP')
+            ->options(['timeouts' => 1500])
+            ->addSuccess('OTP Code Sent');
+    }
+
+    public function addPhone($id)
+    {
+        $this->validate([
+            'number' => 'required|min:11',
+        ]);
+
+        $user = User::find($id)->update([
             'phone_number' => $this->number,
         ]);
+
+        $code = rand(0, 999999);
+
+        Validate::insert([
+            'user_id' => auth()->id(),
+            'code' => $code,
+            'number' => $this->number,
+            'status' => 0,
+            'created_at' => now(),
+            'updated_at' => null,
+        ]);
+
+        flash()
+            ->title('Phone')
+            ->options(['timeouts' => 1500])
+            ->addSuccess('phone Number Added Successfully');
+        sleep(3);
+        $this->sendOtp();
     }
 
+    public function verifyNumber($id)
+    {
+        $this->validate([
+            'otp' => 'required',
+        ]);
+
+        $user = Validate::Where('user_id', $id)->first();
+
+        if ($this->otp == $user->code) {
+            User::find($id)->update([
+                'phone_verify' => 1,
+            ]);
+
+            Validate::Where('user_id', $id)->update([
+                'status' => 1,
+            ]);
+
+            flash()
+                ->title('Phone')
+                ->options(['timeouts' => 1500])
+                ->addSuccess('phone Number Verified');
+        }
+    }
+
+    public function updatePhone($id)
+    {
+        $mailData = [
+            'id' => auth()->user()->id,
+            'name' => auth()->user()->name,
+            'email' => auth()->user()->email,
+            'phone_number' => auth()->user()->phone_number,
+        ];
+
+        User::find($id)->update([
+            'phone_update' => 1,
+        ]);
+
+        Mail::to('naeem8541@gmail.com')
+            ->cc(auth()->user()->email)
+            ->send(new UserPhoneNumberUpdate($mailData));
+        flash()
+            ->title('Update')
+            ->options(['timeouts' => 1500])
+            ->addSuccess('phone Number Update Request Send');
+    }
 }; ?>
 
 <div>
@@ -258,9 +389,9 @@ new class extends Component {
                                                 <label class="form-label">Email address</label>
                                                 <input wire:model='email' value="{{ auth()->user()->email }}"
                                                     class="form-control" type="email" placeholder="Email">
-                                                    @error('email')
-                                                        <p class="text-danger">{{ $message }}</p>
-                                                    @enderror
+                                                @error('email')
+                                                    <p class="text-danger">{{ $message }}</p>
+                                                @enderror
                                             </div>
                                         </div>
                                         <div class="col-sm-6 col-md-6">
@@ -268,9 +399,9 @@ new class extends Component {
                                                 <label class="form-label">First Name</label>
                                                 <input wire:model='first_name' value="{{ $user->first_name }}"
                                                     class="form-control" type="text" placeholder="First Name">
-                                                    @error('first_name')
-                                                        <p class="text-danger">{{ $message }}</p>
-                                                    @enderror
+                                                @error('first_name')
+                                                    <p class="text-danger">{{ $message }}</p>
+                                                @enderror
                                             </div>
                                         </div>
                                         <div class="col-sm-6 col-md-6">
@@ -278,9 +409,9 @@ new class extends Component {
                                                 <label class="form-label">Last Name</label>
                                                 <input wire:model='last_name' value="{{ $user->last_name }}"
                                                     class="form-control" type="text" placeholder="Last Name">
-                                                    @error('last_name')
-                                                        <p class="text-danger">{{ $message }}</p>
-                                                    @enderror
+                                                @error('last_name')
+                                                    <p class="text-danger">{{ $message }}</p>
+                                                @enderror
                                             </div>
                                         </div>
                                         <div class="col-md-12">
@@ -288,9 +419,9 @@ new class extends Component {
                                                 <label class="form-label">Address</label>
                                                 <input wire:model='address' value="{{ $user->address }}"
                                                     class="form-control" type="text" placeholder="Home Address">
-                                                    @error('address')
-                                                        <p class="text-danger">{{ $message }}</p>
-                                                    @enderror
+                                                @error('address')
+                                                    <p class="text-danger">{{ $message }}</p>
+                                                @enderror
                                             </div>
                                         </div>
                                         <div class="col-sm-6 col-md-4">
@@ -298,9 +429,9 @@ new class extends Component {
                                                 <label class="form-label">City</label>
                                                 <input wire:model='city' value="{{ $user->city }}"
                                                     class="form-control" type="text" placeholder="City">
-                                                    @error('city')
-                                                        <p class="text-danger">{{ $message }}</p>
-                                                    @enderror
+                                                @error('city')
+                                                    <p class="text-danger">{{ $message }}</p>
+                                                @enderror
                                             </div>
                                         </div>
                                         <div class="col-sm-6 col-md-3">
@@ -308,9 +439,9 @@ new class extends Component {
                                                 <label class="form-label">Postal Code</label>
                                                 <input wire:model='postal_code' value="{{ $user->postal_code }}"
                                                     class="form-control" type="number" placeholder="ZIP Code">
-                                                    @error('postal_code')
-                                                        <p class="text-danger">{{ $message }}</p>
-                                                    @enderror
+                                                @error('postal_code')
+                                                    <p class="text-danger">{{ $message }}</p>
+                                                @enderror
                                             </div>
                                         </div>
                                         <div class="col-md-5">
@@ -318,9 +449,9 @@ new class extends Component {
                                                 <label class="form-label">Country</label>
                                                 <input wire:model='division' value="{{ $user->division }}"
                                                     class="form-control" type="text" placeholder="Division">
-                                                    @error('division')
-                                                        <p class="text-danger">{{ $message }}</p>
-                                                    @enderror
+                                                @error('division')
+                                                    <p class="text-danger">{{ $message }}</p>
+                                                @enderror
                                             </div>
                                         </div>
                                         <div class="col-md-12">
@@ -352,20 +483,21 @@ new class extends Component {
                                 <h4>Password Change</h4>
                             </div>
                             <div class="card-body">
-                                @if($status == 0)
-                                <form wire:submit='passwordCheck({{ auth()->id() }})'>
-                                    <div class="my-2">
-                                        <label>Check Passoword</label>
-                                        <input wire:model='new_password' type="password" class="form-control">
-                                        @error('new_password')
-                                            <p class="text-danger">{{ $message }}</p>
-                                        @enderror
-                                    </div>
-                                    <button  wire:target='passwordCheck' class="btn btn-primary btn-block">Check</button>
-                                    <div wire:loading wire:target='passwordCheck'>
-                                        <h5>Checking...</h5>
-                                    </div>
-                                </form>
+                                @if ($status == 0)
+                                    <form wire:submit='passwordCheck({{ auth()->id() }})'>
+                                        <div class="my-2">
+                                            <label>Check Passoword</label>
+                                            <input wire:model='new_password' type="password" class="form-control">
+                                            @error('new_password')
+                                                <p class="text-danger">{{ $message }}</p>
+                                            @enderror
+                                        </div>
+                                        <button wire:target='passwordCheck'
+                                            class="btn btn-primary btn-block">Check</button>
+                                        <div wire:loading wire:target='passwordCheck'>
+                                            <h5>Checking...</h5>
+                                        </div>
+                                    </form>
                                 @else
                                     <form wire:submit='passwordChange({{ auth()->id() }})'>
                                         <div class="my-2">
@@ -377,12 +509,14 @@ new class extends Component {
                                         </div>
                                         <div class="my-2">
                                             <label>Confirm Passoword</label>
-                                            <input wire:model='password_confirmation' type="password" class="form-control">
+                                            <input wire:model='password_confirmation' type="password"
+                                                class="form-control">
                                             @error('password_confirmation')
                                                 <p class="text-danger">{{ $message }}</p>
                                             @enderror
                                         </div>
-                                        <button wire:model='toggle' wire:target='passwordChange' class="btn btn-primary btn-block">Change</button>
+                                        <button wire:model='toggle' wire:target='passwordChange'
+                                            class="btn btn-primary btn-block">Change</button>
                                         <div wire:loading wire:target='passwordChange'>
                                             <h5>Password Changing...</h5>
                                         </div>
@@ -394,44 +528,64 @@ new class extends Component {
                     <div class="col-lg-6">
                         <div class="card">
                             <div class="card-header">
-                                <h4>Add Contact Number</h4>
+
+                                <h4>{{ !auth()->user()->phone_number ? "Add Contact Number" : 'Contact Number'  }}</h4>
                             </div>
                             <div class="card-body">
-                                @if(!Auth::user()->phone_number)
-                                <form wire:submit='addPhone({{ auth()->id() }})'>
-                                    <div class="my-2">
-                                        <label>Add Number</label>
-                                        <input wire:model='number' type="number" class="form-control">
-                                        @error('number')
-                                            <p class="text-danger">{{ $message }}</p>
-                                        @enderror
+                                @if (Auth::user()->phone_number)
+                                    <div class="my-3">
+                                        <h6>phone Number : {{ Auth::user()->phone_number }}</h6>
+                                        @if (!Auth::user()->phone_verify)
+                                            <code class="text-danger">Unverified</code>
+                                        @else
+                                            <code>Verified</code>
+                                        @endif
                                     </div>
-                                    <button  wire:target='number' class="btn btn-primary btn-block">Add</button>
-                                    <div wire:loading wire:target='number'>
-                                        <h5>Add Number...</h5>
-                                    </div>
-                                </form>
-                                @else
-                                    <form wire:submit='passwordChange({{ auth()->id() }})'>
+                                @endif
+                                @if (!Auth::user()->phone_number)
+                                    <form wire:submit='addPhone({{ auth()->id() }})'>
                                         <div class="my-2">
-                                            <label>New Passoword</label>
-                                            <input wire:model='password' type="password" class="form-control">
-                                            @error('password')
+                                            <label>Add Number</label>
+                                            <input wire:model='number' type="number" class="form-control">
+                                            @error('number')
                                                 <p class="text-danger">{{ $message }}</p>
                                             @enderror
                                         </div>
-                                        <div class="my-2">
-                                            <label>Confirm Passoword</label>
-                                            <input wire:model='password_confirmation' type="password" class="form-control">
-                                            @error('password_confirmation')
-                                                <p class="text-danger">{{ $message }}</p>
-                                            @enderror
-                                        </div>
-                                        <button wire:model='toggle' wire:target='passwordChange' class="btn btn-primary btn-block">Change</button>
-                                        <div wire:loading wire:target='passwordChange'>
-                                            <h5>Password Changing...</h5>
+                                        <button wire:target='number' class="btn btn-primary btn-block">Add</button>
+                                        <div wire:loading wire:target='number'>
+                                            <h5>Add Number...</h5>
                                         </div>
                                     </form>
+                                @else
+                                    @if (!Auth::user()->phone_verify)
+                                    <form wire:submit='verifyNumber({{ auth()->id() }})'>
+                                        <div class="my-2">
+                                            <label class="text-center">
+                                                <h4>Enter OTP</h4>
+                                            </label>
+                                            <input wire:model='otp' type="number" class="form-control">
+                                            @error('otp')
+                                                <p class="text-danger">{{ $message }}</p>
+                                            @enderror
+                                        </div>
+                                        <button wire:target='passwordChange' class="btn btn-primary btn-block">Verify
+                                            Number</button>
+                                        <div wire:loading wire:target='passwordChange'>
+                                            <h5>Verifying...</h5>
+                                        </div>
+                                    </form>
+                                    @endif
+                                @endif
+                                @if (Auth::user()->phone_verify && !Auth::user()->phone_update)
+                                    <button wire:click='updatePhone({{ auth()->id() }})'
+                                        class="btn btn-primary btn-block">Update Number</button>
+                                    <div wire:loading wire:target='updatePhone'>
+                                        <h5>Sending Request...</h5>
+                                    </div>
+                                @endif
+                                @if (Auth::user()->phone_update && Auth::user()->phone_verify)
+                                    {{-- <p class="bg-primary px-3 py-2 rounded">Request Sended for Update Number</p> --}}
+                                    <button disabled class="btn btn-primary">Request Sended for Update Number</p>
                                 @endif
                             </div>
                         </div>

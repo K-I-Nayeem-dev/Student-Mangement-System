@@ -11,11 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('validates', function (Blueprint $table) {
+        Schema::create('link_types', function (Blueprint $table) {
             $table->id();
-            $table->integer('user_id');
-            $table->integer('code')->nullable();
-            $table->string('number')->nullable();
+            $table->string('name');
+            $table->string('icon');
             $table->integer('status')->default(0);
             $table->timestamps();
         });
@@ -26,6 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('validates');
+        Schema::dropIfExists('link_types');
     }
 };
