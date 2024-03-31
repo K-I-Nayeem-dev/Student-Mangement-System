@@ -32,28 +32,34 @@ new class extends Component {
     public $otp;
 
     #Validate[]
-    public $password = '', $password_confirmation = '';
+    public $password = '',
+        $password_confirmation = '';
 
     #Validate[]
     public $company, $username, $email, $first_name, $last_name, $address, $city, $postal_code, $division, $about_me;
 
-    public $status = 0, $user;
+    public $status = 0,
+        $user;
 
     #Validate[]
     public $url, $type, $linkStatus;
+
+    public $id;
+
+    #Validate[]
+    public $eUrl, $eType, $eStatus;
 
     public function with(): array
     {
         return [
             'links' => LinkType::Where('status', 1)->get(),
-            'userLinks' => Link::Where('user_id', auth()->id())->get(),
+            'userLinks' => Link::Where('user_id', auth()->id())->latest()->paginate(3),
         ];
     }
 
     public function mount()
     {
         $this->user = UserDetails::Where('user_id', auth()->id())->first();
-        // dd($this->user);
     }
 
     public function profileSave($id)
@@ -273,12 +279,12 @@ new class extends Component {
         $this->validate([
             'type' => 'required',
             'url' => 'required',
-            'linkStatus' => 'required'
+            'linkStatus' => 'required',
         ]);
 
         $data = [
             'user_id' => auth()->id(),
-            'type' => $this->type,
+            'type_id' => $this->type,
             'url' => $this->url,
             'status' => $this->linkStatus,
             'created_at' => now(),
@@ -291,9 +297,47 @@ new class extends Component {
             ->title('Link')
             ->options(['timeouts' => 1500])
             ->addSuccess('Link Added To Profile');
-
     }
 
+    public function edit($id)
+    {
+        $link = Link::Where('id', $id)->first();
+        $this->id = $link->id;
+        $this->eUrl = $link->url;
+        $this->eType = $link->relToType->id;
+        $this->eStatus = $link->status;
+    }
+
+    public function deleteLink($id)
+    {
+        Link::find($id)->delete();
+        flash()
+            ->title('Delete')
+            ->options(['timeouts' => 1500])
+            ->addError('Link Delete From Profile');
+    }
+
+    public function editLink($id)
+    {
+        $this->validate([
+            'eUrl' => 'required',
+            'eType' => 'required',
+            'eStatus' => 'required',
+        ]);
+
+        $data = [
+            'url' => $this->eUrl,
+            'type_id' => $this->eType,
+            'status' => $this->eStatus,
+        ];
+
+        Link::find($id)->update($data);
+
+        flash()
+            ->title('Update')
+            ->options(['timeouts' => 1500])
+            ->addSuccess('Link Update Profile Successfully');
+    }
 }; ?>
 
 <div>
@@ -480,9 +524,11 @@ new class extends Component {
                                                 <label class="form-label">Country</label>
                                                 <input wire:model='division' value="{{ $user->division }}"
                                                     class="form-control" type="text" placeholder="Division">
+
                                                 @error('division')
                                                     <p class="text-danger">{{ $message }}</p>
                                                 @enderror
+
                                             </div>
                                         </div>
                                         <div class="col-md-12">
@@ -624,7 +670,7 @@ new class extends Component {
                     </div>
                 </div>
                 <div class="row">
-                    <div class="col-lg-6">
+                    <div class="col-lg-5">
                         <div class="card">
                             <div class="card-header">
                                 <h4>Social Link Add</h4>
@@ -667,39 +713,97 @@ new class extends Component {
                         </div>
 
                     </div>
-                    <div class="col-lg-6">
+                    <div class="col-lg-7 p-0 m-0">
                         <div class="card">
                             <div class="card-header">
                                 <h4>Links</h4>
                             </div>
                             <div class="card-body">
-                                <table class="table">
+                                <table class="table text-center">
                                     <thead>
                                         <tr>
                                             <th scope="col">Sl</th>
                                             <th scope="col">Name</th>
                                             <th scope="col">URL</th>
                                             <th scope="col">Status</th>
+                                            <th scope="col">Actions</th>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        @foreach ($userLinks as $link)
-                                        <tr>
-                                            <th scope="row">{{ $loop->iteration }}</th>
-                                            <td>{{ $link->relToType->name }}</td>
-                                            <td>
-                                                <a href="{{  }}" target="_blank">Visit</a>
-                                            </td>
-                                            <td>
-                                                <select>
-                                                    <option value="1" {{ $link->status ? 'selected' : '' }}>Active</option>
-                                                    <option value="0" {{ !$link->status ? 'selected' : '' }}>inactive</option>
-                                                </select>
-                                            </td>
-                                        </tr>
+                                        @foreach ($userLinks as $key => $link)
+                                            <tr>
+                                                <th scope="row">{{ ++$key }}</th>
+                                                <td>{{ $link->relToType->name }}</td>
+                                                <td>
+                                                    <a href="{{ $link->url }}" target="_blank">Visit</a>
+                                                </td>
+                                                <td>
+                                                    @if ($link->status)
+                                                        <p class="btn btn-success btn-sm">Active</p>
+                                                    @else
+                                                        <p class="btn btn-danger btn-sm">Deactive</p>
+                                                    @endif
+                                                </td>
+                                                <td class="d-flex justify-content-center">
+                                                    <button wire:click="edit({{ $link->id }})" type="button"
+                                                        class="btn btn-primary btn-sm me-2" data-bs-toggle="modal"
+                                                        data-bs-target="#exampleModal"><i class="fa fa-edit"
+                                                            aria-hidden="true"></i></button>
+                                                    <button wire:click="deleteLink({{ $link->id }})"
+                                                        class="btn btn-danger btn-sm"><i class="fa fa-trash"
+                                                            aria-hidden="true"></i></button>
+                                                </td>
+                                            </tr>
                                         @endforeach
                                     </tbody>
                                 </table>
+                                {{ $userLinks->links('pagination::bootstrap-4') }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Modal -->
+                <div wire:ignore.self class="modal fade" id="exampleModal" tabindex="-1"
+                    aria-labelledby="exampleModalLabel" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h1 class="modal-title fs-5" id="exampleModalLabel">Edit Link</h1>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                    aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <form wire:submit='editLink({{ $id }})'>
+                                    <div class="my-3">
+                                        <label>Name</label>
+                                        <input wire:model='eUrl' class="form-control" wire:model='LName'
+                                            type="text">
+                                    </div>
+                                    <div class="my-3">
+                                        <label>URL</label>
+                                        <select wire:model='eType' class="form-select">
+                                            <option value="">Select Social</option>
+                                            @foreach ($links as $link)
+                                                <option value="{{ $link->id }}"
+                                                    {{ $link->id == $eType ? 'selected' : '' }}>{{ $link->name }}
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                    <div class="my-3">
+                                        <label>Name</label>
+                                        <select wire:model='eStatus' class="form-select">
+                                            <option value="">Select Status</option>
+                                            <option value="1">Active</option>
+                                            <option value="0">Deactive</option>
+                                        </select>
+                                    </div>
+
+                                    <div class="d-flex justify-content-end">
+                                        <button type="submit" class="btn btn-primary">Update</button>
+                                    </div>
+
+                                </form>
                             </div>
                         </div>
                     </div>

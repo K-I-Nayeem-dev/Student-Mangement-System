@@ -3,6 +3,7 @@
 use Livewire\Volt\Component;
 use Livewire\WithFileUploads;
 use App\Models\User;
+use App\Models\Link;
 use Illuminate\Support\Facades\Auth;
 use Intervention\Image\ImageManager;
 use Intervention\Image\Drivers\Gd\Driver;
@@ -18,6 +19,7 @@ new class extends Component {
     public function with(): array{
         return [
             'users' => User::Select('role')->get(),
+            'links' => Link::Where('user_id', auth()->id())->get(),
         ];
     }
 
@@ -236,28 +238,25 @@ new class extends Component {
                                 <hr>
                                 <div class="social-media">
                                     <ul class="list-inline">
-                                        <li class="list-inline-item"><a href="https://www.facebook.com/"
-                                                target="_blank"><i class="fa fa-facebook"></i></a></li>
-                                        <li class="list-inline-item"><a href="https://accounts.google.com/"
-                                                target="_blank"><i class="fa fa-google-plus"></i></a></li>
-                                        <li class="list-inline-item"><a href="https://twitter.com/" target="_blank"><i
-                                                    class="fa fa-twitter"></i></a></li>
-                                        <li class="list-inline-item"><a href="https://www.instagram.com/"
-                                                target="_blank"><i class="fa fa-instagram"></i></a></li>
-                                        <li class="list-inline-item"><a href="https://rss.app/" target="_blank"><i
-                                                    class="fa fa-rss"></i></a></li>
+                                        @forelse ($links as $link)
+                                            <li class="list-inline-item"><a href="{{ $link->url }}" target="_blank"><i class="fa fa-{{ $link->relToType->icon }}"></i></a></li>
+                                        @empty
+                                            <li>No Link Added</li>
+                                        @endforelse
                                     </ul>
                                 </div>
-                                <div class="follow">
-                                    <div class="row">
-                                        <div class="col-6 text-md-end border-right">
-                                            <div class="follow-num counter">User Count</div><span>Users</span>
-                                        </div>
-                                        <div class="col-6 text-md-start">
-                                            <div class="follow-num counter">Moderator Count</div><span>Moderator</span>
+                                @if (Auth::user()->role == 'admin')
+                                    <div class="follow">
+                                        <div class="row">
+                                            <div class="col-6 text-md-end border-right">
+                                                <div class="follow-num counter">User Count</div><span>Users</span>
+                                            </div>
+                                            <div class="col-6 text-md-start">
+                                                <div class="follow-num counter">Moderator Count</div><span>Moderator</span>
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
+                                @endif
                             </div>
                         </div>
                     </div>

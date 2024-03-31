@@ -12,6 +12,6 @@ class Link extends Model
     protected $guarded = [];
 
     public function relToType(){
-        return $this->hasOne(linkType::class, 'id', 'id');
+        return $this->hasOne(linkType::class, 'id', 'type_id');
     }
 }

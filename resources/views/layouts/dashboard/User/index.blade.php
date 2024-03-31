@@ -42,18 +42,17 @@
                                     </div>
                                 </div>
                                 <div class="social-details">
-                                    <h5 class="mb-1"><a href="social-app.html">{{ $user->name }}</a></h5><span
+                                    <h5 class="mb-1"><a href="#">{{ $user->name }}</a></h5><span
                                         class="f-light">{{ $user->email }}</span>
                                     <ul class="card-social">
-                                        <li><a href="https://www.facebook.com/" target="_blank"><i
-                                                    class="fa fa-facebook"></i></a></li>
-                                        <li><a href="https://accounts.google.com/" target="_blank"><i
-                                                    class="fa fa-google-plus"></i></a></li>
-                                        <li><a href="https://twitter.com/" target="_blank"><i class="fa fa-twitter"></i></a>
-                                        </li>
-                                        <li><a href="https://www.instagram.com/" target="_blank"><i
-                                                    class="fa fa-instagram"></i></a></li>
-                                        <li><a href="https://rss.app/" target="_blank"><i class="fa fa-rss"></i></a></li>
+                                        {{-- @if ($user->id && $link)
+
+                                        @else
+
+                                        @endif --}}
+                                        @foreach ($links as $link)
+                                            <li><a href="{{ $link->url }}" target="_blank"><i style="font-size: 20px;" class="fa fa-{{ $link->relToType->icon }}"></i></a></li>
+                                        @endforeach
                                     </ul>
                                     <ul class="social-follow">
                                         <li>

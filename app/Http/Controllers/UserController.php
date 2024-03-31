@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Link;
 use App\Models\User;
 use Illuminate\Http\Request;
 
@@ -12,9 +13,23 @@ class UserController extends Controller
      */
     public function index()
     {
+        $users = User::all();
+        
+        // foreach($users as $user){
+        // };
+        
+        foreach ($users as $key => $user) {
+            $links =  Link::where('status' , 1)->orWhere('user_id', $user->id)->get();
+            // return $links[0];
+        }
+
+        // return $links;
+
         return view('layouts.dashboard.User.index', [
-            'users' => User::all(),
+            'users' => $users,
+            'links' => $links,
         ]);
+        
     }
 
     /**
