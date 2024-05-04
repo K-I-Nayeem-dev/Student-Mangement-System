@@ -221,7 +221,7 @@ new class extends Component {
                                             @if (auth()->user()->role == 'admin')
                                                 <div class="desc">Admin</div>
                                             @else
-                                                <div class="desc">{{ Auth::user()->relToRole->type }}</div>
+                                                {{-- <div class="desc">{{ Auth::user()->relToRole->type }}</div> --}}
                                             @endif
                                         </div>
                                     </div>

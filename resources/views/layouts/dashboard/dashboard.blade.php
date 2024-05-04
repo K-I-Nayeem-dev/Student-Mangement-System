@@ -134,7 +134,7 @@
                                         <p class="mb-0 font-roboto">Admin</p>
                                         
                                     @else
-                                        <p class="mb-0 font-roboto">{{ Auth::user()->relToRole->type }}</p>
+                                        {{-- <p class="mb-0 font-roboto">{{ Auth::user()->relToRole->type }}</p> --}}
                                     @endif
                                 </div>
                             </div>
