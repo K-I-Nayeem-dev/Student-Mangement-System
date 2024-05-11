@@ -391,7 +391,7 @@ new class extends Component {
                                                     @if (Auth::user()->role == 'admin')
                                                         <p>{{ Auth::user()->role }}</p>
                                                     @else
-                                                        <p>{{ Auth::user()->relToRole->type }}</p>
+                                                        {{-- <p>{{ Auth::user()->relToRole->type }}</p> --}}
                                                     @endif
                                                 </div>
                                             </div>
@@ -757,7 +757,9 @@ new class extends Component {
                                         @endforeach
                                     </tbody>
                                 </table>
-                                {{ $userLinks->links('pagination::bootstrap-4') }}
+                                <div class="mt-2">
+                                    {{ $userLinks->links('pagination::bootstrap-4') }}
+                                </div>
                             </div>
                         </div>
                     </div>

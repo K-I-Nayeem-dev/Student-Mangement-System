@@ -9,8 +9,6 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\SettingController;
 use App\Http\Controllers\UserController;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash;
 use App\Http\Controllers\BkashPaymentController;
 use App\Http\Controllers\LinkController;
 
@@ -40,6 +38,7 @@ Route::group(['middleware' => 'web'], function(){
     // Profile Back-end Routes
     Route::group(['controller' => ProfileController::class], function(){
         Route::get('profile', 'index')->middleware(['auth'])->name('profile');
+        Route::get('user/profile/{id}', 'user_profile')->middleware(['auth'])->name('user.profile');
     });
 
     // Setting Controller

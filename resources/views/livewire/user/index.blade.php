@@ -193,7 +193,7 @@ new class extends Component {
                                     </button>
 
                                     <abbr title="View {{ $user->name }} Profile">
-                                        <button class="btn btn-primary"><i style="font-size: 18px" class="fa fa-eye" aria-hidden="true"></i></button>
+                                        <a href="{{ url('user/profile') . '/' . $user->id }}" class="btn btn-primary"><i style="font-size: 18px" class="fa fa-eye" aria-hidden="true"></i></a>
                                     </abbr>
                                 @endif
 
