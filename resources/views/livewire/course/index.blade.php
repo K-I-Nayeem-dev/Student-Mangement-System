@@ -99,7 +99,9 @@ new class extends Component {
         );
 
         $this->successMessage('Course Added Successfully');
+
         $this->reset();
+        
     }
 
 

@@ -287,6 +287,8 @@
                                             </use>
                                         </svg><span>Courses</span></a>
                                     <ul class="sidebar-submenu">
+                                            <li><a href="{{ route('category') }}"><i class="fa fa-list me-1"
+                                                        aria-hidden="true"></i>Category</a></li>
                                             <li><a href="{{ route('course.index') }}"><i class="fa fa-plus-square me-1"
                                                         aria-hidden="true"></i>Add Course</a></li>
                                             <li><a href="{{ route('course.create') }}"><i class="fa fa-address-book-o me-1" aria-hidden="true"></i>View Course</a></li>

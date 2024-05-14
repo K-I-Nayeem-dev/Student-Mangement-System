@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\CourseCategoryController;
 use App\Http\Controllers\CouponController;
 use App\Http\Controllers\CourseController;
 use App\Http\Controllers\CoursePurchaseController;
@@ -39,6 +40,11 @@ Route::group(['middleware' => 'web'], function(){
     Route::group(['controller' => ProfileController::class], function(){
         Route::get('profile', 'index')->middleware(['auth'])->name('profile');
         Route::get('user/profile/{id}', 'user_profile')->middleware(['auth'])->name('user.profile');
+    });
+    
+    // Course Category Back-end Routes
+    Route::group(['controller' => CourseCategoryController::class], function(){
+        Route::get('/course/category', 'index')->middleware(['auth'])->name('category');
     });
 
     // Setting Controller
