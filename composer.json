@@ -16,6 +16,7 @@
         "livewire/livewire": "^3.4",
         "livewire/volt": "^1.0",
         "php-flasher/flasher-laravel": "^1.15",
+        "php-flasher/flasher-sweetalert-laravel": "^1.15",
         "php-flasher/flasher-toastr-laravel": "^1.15",
         "spatie/laravel-permission": "^6.4"
     },

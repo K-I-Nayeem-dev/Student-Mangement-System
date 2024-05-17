@@ -186,7 +186,9 @@ new class extends Component {
         $filePath = public_path('uploads/courses/') . $imagePath->image;
 
         if ($this->cEImage != null) {
+
             if (file_exists($filePath)) {
+
                 unlink($filePath);
 
                 $Image = new ImageManager(new Driver());
@@ -196,14 +198,21 @@ new class extends Component {
 
                 Course::find($id)->update($data + ['image' => $new_name]);
                 $this->successMessage('Course Update Successfully');
+
             } else {
+
                 Course::find($id)->update($data);
                 $this->successMessage('Course Update Successfully');
+
             }
+
         } else {
+
             Course::find($id)->update($data);
             $this->successMessage('Course Update Successfully');
+
         }
+        
     }
 
     public function purchase($id){
@@ -477,7 +486,7 @@ new class extends Component {
                                             aria-label="Close"></button>
                                     </div>
                                     @if ($courseDetail != null)
-                                        <div class="modal-body d-flex justify-content-center">
+                                        <div class="modal-body d-flex justify-content-czenter">
                                             <div class="card" style="width: 25rem;">
                                                 <img src="{{ asset('uploads') }}/courses/{{ $courseDetail->image }}"
                                                     class="card-img-top" alt="">
